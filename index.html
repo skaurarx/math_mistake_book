@@ -560,6 +560,31 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   <div class="panel" id="panel-list">
     <div class="card">
       <h2>错题库 <span id="list-count"></span></h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div class="form-group" style="margin-bottom:0">
+          <label>类型筛选</label>
+          <select id="list-filter-type" onchange="renderList()">
+            <option value="all">全部</option>
+            <option value="高数">高数</option>
+            <option value="线代">线代</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>章节筛选</label>
+          <input type="text" id="list-filter-chapter" placeholder="输入章节关键词" oninput="renderList()">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>排序</label>
+          <select id="list-sort" onchange="renderList()">
+            <option value="id-desc">最新添加优先</option>
+            <option value="id-asc">最早添加优先</option>
+            <option value="last-desc">最近练习优先</option>
+            <option value="last-asc">最久未练优先</option>
+            <option value="count-desc">练习次数多优先</option>
+            <option value="count-asc">练习次数少优先</option>
+          </select>
+        </div>
+      </div>
       <div id="list-area"></div>
     </div>
   </div>
@@ -1048,12 +1073,35 @@ function addQuestion() {
 // ===================== 错题列表 =====================
 
 function renderList() {
-  const qs = getQuestions().filter(q => q.active);
+  const active = getQuestions().filter(q => q.active);
   const area = document.getElementById('list-area');
-  document.getElementById('list-count').textContent = `(${qs.length} 道)`;
+  const typeFilter = document.getElementById('list-filter-type')?.value || 'all';
+  const chapterFilter = (document.getElementById('list-filter-chapter')?.value || '').trim();
+  const sortBy = document.getElementById('list-sort')?.value || 'id-desc';
+  let qs = active.filter(q => {
+    const typeMatch = typeFilter === 'all' || (q.type || '高数') === typeFilter;
+    const chapterMatch = !chapterFilter || (q.chapter || '').includes(chapterFilter);
+    return typeMatch && chapterMatch;
+  });
+
+  qs.sort((a, b) => {
+    if (sortBy === 'id-asc') return (a.id || 0) - (b.id || 0);
+    if (sortBy === 'last-desc') return dateValue(b.last_practiced_at) - dateValue(a.last_practiced_at);
+    if (sortBy === 'last-asc') return dateValue(a.last_practiced_at) - dateValue(b.last_practiced_at);
+    if (sortBy === 'count-desc') return (b.practiced_count || 0) - (a.practiced_count || 0);
+    if (sortBy === 'count-asc') return (a.practiced_count || 0) - (b.practiced_count || 0);
+    return (b.id || 0) - (a.id || 0);
+  });
+
+  document.getElementById('list-count').textContent = `(${qs.length} / ${active.length} 道)`;
+
+  if (!active.length) {
+    area.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>错题库为空，请先添加错题</div>';
+    return;
+  }
 
   if (!qs.length) {
-    area.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>错题库为空，请先添加错题</div>';
+    area.innerHTML = '<div class="empty">没有符合筛选条件的错题</div>';
     return;
   }
 
@@ -1124,6 +1172,11 @@ function saveQuestionEdit() {
   searchQuestions();
   if (!practiceSession) renderPractice();
   toast('错题已更新');
+}
+
+function dateValue(text) {
+  const d = parseDate(text);
+  return d ? d.getTime() : 0;
 }
 
 function esc(s) {
