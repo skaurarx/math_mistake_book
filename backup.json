@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-12 19:33:47",
+  "exported_at": "2026-05-12 19:40:42",
   "questions": [
     {
       "id": 1,
@@ -10,7 +10,7 @@
       "created_at": "2026-05-12 17:26:59",
       "last_practiced_at": null,
       "practiced_count": 0,
-      "active": true,
+      "active": false,
       "ease": 2.5,
       "interval_days": 0,
       "next_review_at": null,
@@ -92,5 +92,5 @@
       }
     }
   },
-  "cloud_saved_at": "2026-05-12 19:33:47"
+  "cloud_saved_at": "2026-05-12 19:40:42"
 }
