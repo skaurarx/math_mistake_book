@@ -101,7 +101,8 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   margin-bottom: 4px;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 10px 12px;
   border: 1.5px solid var(--border);
@@ -109,9 +110,67 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   font-size: 0.95em;
   outline: none;
   transition: border-color 0.15s;
+  background: #fff;
 }
 
-.form-group input:focus { border-color: var(--primary); }
+.form-group input:focus,
+.form-group select:focus { border-color: var(--primary); }
+
+/* 类型选择器 */
+.type-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.type-selector label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.15s;
+}
+
+.type-selector input[type="radio"] { display: none; }
+.type-selector input[type="radio"]:checked + label.gs-label { border-color: #1d4ed8; background: #dbeafe; color: #1d4ed8; }
+.type-selector input[type="radio"]:checked + label.xd-label { border-color: #065f46; background: #d1fae5; color: #065f46; }
+
+/* 数量选择 */
+.count-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.count-row .type-label {
+  width: 50px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.count-row input[type="number"] {
+  width: 70px;
+  padding: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.95em;
+  outline: none;
+}
+
+.count-row input[type="number"]:focus { border-color: var(--primary); }
+
+.count-row .avail {
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
 
 /* 按钮 */
 .btn {
@@ -186,6 +245,17 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   background: #eef2ff;
   color: var(--primary);
 }
+
+.type-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.type-tag.gs { background: #dbeafe; color: #1d4ed8; }
+.type-tag.xd { background: #d1fae5; color: #065f46; }
 
 .weight-badge {
   display: inline-block;
@@ -386,6 +456,15 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
     <div class="card">
       <h2>添加错题</h2>
       <div class="form-group">
+        <label>错题类型</label>
+        <div class="type-selector">
+          <input type="radio" name="q-type" id="type-gs" value="高数" checked>
+          <label for="type-gs" class="gs-label">高数</label>
+          <input type="radio" name="q-type" id="type-xd" value="线代">
+          <label for="type-xd" class="xd-label">线代</label>
+        </div>
+      </div>
+      <div class="form-group">
         <label>错题标题</label>
         <input type="text" id="input-title" placeholder="例如：极限计算错题1">
       </div>
@@ -421,7 +500,6 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
 // ===================== 常量 =====================
 const QUESTIONS_KEY = 'mb_questions';
 const DAILY_KEY = 'mb_daily_records';
-const DAILY_COUNT = 10;
 
 // ===================== 工具函数 =====================
 
@@ -546,6 +624,7 @@ function switchTab(name) {
 // ===================== 添加错题 =====================
 
 function addQuestion() {
+  const type = document.querySelector('input[name="q-type"]:checked').value;
   const title = document.getElementById('input-title').value.trim();
   const chapter = document.getElementById('input-chapter').value.trim();
 
@@ -554,6 +633,7 @@ function addQuestion() {
   const qs = getQuestions();
   qs.push({
     id: getNextId(qs),
+    type,
     title,
     chapter,
     created_at: nowStr(),
@@ -590,6 +670,7 @@ function renderList() {
         <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
       </div>
       <div class="q-item-meta">
+        <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
         ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
         <span>添加: ${q.created_at || '无'}</span>
         <span>上次练习: ${q.last_practiced_at || '从未'}</span>
@@ -623,7 +704,7 @@ function searchQuestions() {
   if (!kw) { area.innerHTML = ''; return; }
 
   const qs = getQuestions().filter(q =>
-    q.active && ((q.title || '') + (q.chapter || '')).includes(kw)
+    q.active && ((q.title || '') + (q.chapter || '') + (q.type || '')).includes(kw)
   );
 
   if (!qs.length) {
@@ -641,6 +722,7 @@ function searchQuestions() {
         </div>
       </div>
       <div class="q-item-meta">
+        <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
         ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
         <span>上次练习: ${q.last_practiced_at || '从未'}</span>
         <span>练习 ${q.practiced_count || 0} 次</span>
@@ -653,7 +735,7 @@ function searchQuestions() {
 
 let practiceSession = null; // { questions: [], current: 0, done: Set }
 
-function getDailyQuestions(forceRefresh) {
+function getDailyQuestions(gsCount, xdCount, forceRefresh) {
   const qs = getQuestions().filter(q => q.active);
   if (!qs.length) return [];
 
@@ -669,8 +751,18 @@ function getDailyQuestions(forceRefresh) {
     if (matched.length) return matched;
   }
 
-  const selected = weightedSample(qs, DAILY_COUNT);
-  records[today] = { generated_at: nowStr(), question_ids: selected.map(q => q.id) };
+  const gsPool = qs.filter(q => (q.type || '高数') === '高数');
+  const xdPool = qs.filter(q => q.type === '线代');
+
+  const gsSelected = weightedSample(gsPool, gsCount);
+  const xdSelected = weightedSample(xdPool, xdCount);
+  const selected = [...gsSelected, ...xdSelected];
+
+  records[today] = {
+    generated_at: nowStr(),
+    question_ids: selected.map(q => q.id),
+    config: { gs: gsCount, xd: xdCount }
+  };
   saveDailyRecords(records);
   return selected;
 }
@@ -679,13 +771,14 @@ function renderPractice() {
   // 统计
   const qs = getQuestions();
   const active = qs.filter(q => q.active);
+  const gsActive = active.filter(q => (q.type || '高数') === '高数');
+  const xdActive = active.filter(q => q.type === '线代');
   const totalPracticed = qs.reduce((s, q) => s + (q.practiced_count || 0), 0);
-  const neverPracticed = active.filter(q => !q.last_practiced_at).length;
 
   document.getElementById('stats-area').innerHTML = `
     <div class="stat-box"><div class="num">${active.length}</div><div class="label">错题总数</div></div>
-    <div class="stat-box"><div class="num">${totalPracticed}</div><div class="label">累计练习</div></div>
-    <div class="stat-box"><div class="num">${neverPracticed}</div><div class="label">未练习</div></div>
+    <div class="stat-box"><div class="num">${gsActive.length}</div><div class="label">高数</div></div>
+    <div class="stat-box"><div class="num">${xdActive.length}</div><div class="label">线代</div></div>
   `;
 
   // 如果有进行中的练习，继续显示
@@ -695,16 +788,34 @@ function renderPractice() {
   }
 
   const area = document.getElementById('practice-area');
-  const dailyQs = getDailyQuestions(false);
+
+  if (!active.length) {
+    area.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>错题库为空，请先添加错题</div>';
+    return;
+  }
+
+  // 读取上次配置
   const today = todayStr();
   const records = getDailyRecords();
-  const alreadyDone = records[today] && !practiceSession;
+  const lastConfig = records[today] && records[today].config;
+  const defaultGs = lastConfig ? lastConfig.gs : Math.min(gsActive.length, 7);
+  const defaultXd = lastConfig ? lastConfig.xd : Math.min(xdActive.length, 3);
 
   area.innerHTML = `
-    <p style="color:var(--text-secondary);margin-bottom:14px">
-      今日已生成 ${dailyQs.length} 道错题。规则：越久没练过的题越容易被抽中。
+    <p style="color:var(--text-secondary);margin-bottom:16px">
+      设置今日各类型出题数量，然后开始训练。规则：越久没练过的题越容易被抽中。
     </p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="count-row">
+      <span class="type-label" style="color:#1d4ed8">高数</span>
+      <input type="number" id="count-gs" min="0" max="${gsActive.length}" value="${defaultGs}">
+      <span class="avail">可用 ${gsActive.length} 道</span>
+    </div>
+    <div class="count-row">
+      <span class="type-label" style="color:#065f46">线代</span>
+      <input type="number" id="count-xd" min="0" max="${xdActive.length}" value="${defaultXd}">
+      <span class="avail">可用 ${xdActive.length} 道</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
       <button class="btn btn-primary" onclick="startPractice()">开始今日训练</button>
       <button class="btn btn-outline" onclick="refreshDaily()">重新随机生成</button>
     </div>
@@ -712,8 +823,25 @@ function renderPractice() {
 }
 
 function startPractice() {
-  const qs = getDailyQuestions(false);
-  if (!qs.length) { toast('错题库为空，请先添加错题'); return; }
+  const gsInput = document.getElementById('count-gs');
+  const xdInput = document.getElementById('count-xd');
+
+  if (!gsInput || !xdInput) {
+    // 没有输入框说明已在练习中
+    const qs = getDailyQuestions(0, 0, false);
+    if (!qs.length) { toast('错题库为空'); return; }
+    practiceSession = { questions: qs, current: 0, done: new Set() };
+    renderPracticeSession();
+    return;
+  }
+
+  let gsCount = parseInt(gsInput.value) || 0;
+  let xdCount = parseInt(xdInput.value) || 0;
+
+  if (gsCount + xdCount === 0) { toast('请至少选择 1 道题'); return; }
+
+  const qs = getDailyQuestions(gsCount, xdCount, false);
+  if (!qs.length) { toast('没有可用的错题'); return; }
 
   practiceSession = { questions: qs, current: 0, done: new Set() };
   renderPracticeSession();
@@ -721,9 +849,8 @@ function startPractice() {
 
 function refreshDaily() {
   showModal('重新生成会替换今日题单，确定吗？', () => {
-    const qs = getDailyQuestions(true);
     practiceSession = null;
-    toast('已重新生成今日题单');
+    toast('请重新设置题目数量');
     renderPractice();
   });
 }
@@ -760,7 +887,10 @@ function renderPracticeSession() {
     <div class="practice-card ${isDone ? 'done' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
         <span class="q-item-id">#${q.id}</span>
-        ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
+          ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+        </div>
       </div>
       <div class="q-item-title" style="font-size:1.1em;margin-bottom:10px">${esc(q.title)}</div>
       <div class="q-item-meta">
