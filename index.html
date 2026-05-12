@@ -408,9 +408,34 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
 .modal p { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 18px; }
 .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
+.list-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.q-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 @media (max-width: 500px) {
+  .container { padding: 14px 10px; }
+  .card { padding: 16px; }
   .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  nav button { padding: 6px 12px; font-size: 0.82em; }
+  nav { justify-content: stretch; }
+  nav button { flex: 1 1 calc(50% - 8px); padding: 8px 10px; font-size: 0.82em; }
+  .list-controls { grid-template-columns: 1fr; }
+  .q-item-header { flex-direction: column; }
+  .q-actions { width: 100%; justify-content: flex-start; }
+  .q-actions .btn { flex: 1; text-align: center; }
+  .practice-nav { flex-direction: column; }
+  .modal { padding: 18px; }
+  .modal-btns { flex-direction: column-reverse; }
+  .modal-btns .btn { width: 100%; }
 }
 
 /* 导入预览表格 */
@@ -560,7 +585,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   <div class="panel" id="panel-list">
     <div class="card">
       <h2>错题库 <span id="list-count"></span></h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div class="list-controls">
         <div class="form-group" style="margin-bottom:0">
           <label>类型筛选</label>
           <select id="list-filter-type" onchange="renderList()">
@@ -586,6 +611,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
         </div>
       </div>
       <div id="list-area"></div>
+      <div id="trash-area" style="margin-top:20px"></div>
     </div>
   </div>
 
@@ -1073,8 +1099,11 @@ function addQuestion() {
 // ===================== 错题列表 =====================
 
 function renderList() {
-  const active = getQuestions().filter(q => q.active);
+  const all = getQuestions();
+  const active = all.filter(q => q.active);
+  const deleted = all.filter(q => !q.active);
   const area = document.getElementById('list-area');
+  renderTrash(deleted);
   const typeFilter = document.getElementById('list-filter-type')?.value || 'all';
   const chapterFilter = (document.getElementById('list-filter-chapter')?.value || '').trim();
   const sortBy = document.getElementById('list-sort')?.value || 'id-desc';
@@ -1112,7 +1141,7 @@ function renderList() {
           <span class="q-item-id">#${q.id}</span>
           <span class="q-item-title">${esc(q.title)}</span>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <div class="q-actions">
           <button class="btn btn-outline btn-sm" onclick="openEditModal(${q.id})">编辑</button>
           <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
         </div>
@@ -1129,12 +1158,55 @@ function renderList() {
   `).join('');
 }
 
+function renderTrash(deleted) {
+  const area = document.getElementById('trash-area');
+  if (!area) return;
+  if (!deleted.length) {
+    area.innerHTML = '<div class="import-summary ok">回收站为空</div>';
+    return;
+  }
+
+  area.innerHTML = `
+    <h2 style="font-size:1.05em;margin-bottom:10px">回收站 <span style="color:var(--text-secondary);font-size:0.85em">(${deleted.length} 道)</span></h2>
+    <div class="import-summary warn">这里显示已删除错题，恢复后会重新进入错题库和抽题范围。</div>
+    ${deleted.map(q => `
+      <div class="q-item">
+        <div class="q-item-header">
+          <div>
+            <span class="q-item-id">#${q.id}</span>
+            <span class="q-item-title">${esc(q.title)}</span>
+          </div>
+          <div class="q-actions">
+            <button class="btn btn-success btn-sm" onclick="restoreQuestion(${q.id})">恢复</button>
+          </div>
+        </div>
+        <div class="q-item-meta">
+          <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
+          ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+          <span>练习 ${q.practiced_count || 0} 次</span>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
 function confirmDelete(id) {
-  showModal('确定删除这道错题吗？（软删除，不再出现在抽题中）', () => {
+  showModal('确定删除这道错题吗？（可在回收站恢复）', () => {
     const qs = getQuestions();
     const q = qs.find(q => q.id === id);
-    if (q) { q.active = false; saveQuestions(qs); renderList(); toast('已删除'); }
+    if (q) { q.active = false; saveQuestions(qs); renderList(); renderPractice(); toast('已移入回收站'); }
   });
+}
+
+function restoreQuestion(id) {
+  const qs = getQuestions();
+  const q = qs.find(q => q.id === id);
+  if (!q) { toast('错题不存在'); return; }
+  q.active = true;
+  saveQuestions(qs);
+  renderList();
+  renderPractice();
+  toast('已恢复错题');
 }
 
 function openEditModal(id) {
