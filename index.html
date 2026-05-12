@@ -464,6 +464,32 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   </div>
 </div>
 
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h3>编辑错题</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-group">
+      <label>错题类型</label>
+      <select id="edit-type">
+        <option value="高数">高数</option>
+        <option value="线代">线代</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>错题标题</label>
+      <input type="text" id="edit-title" placeholder="错题标题">
+    </div>
+    <div class="form-group">
+      <label>章节</label>
+      <input type="text" id="edit-chapter" placeholder="章节">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline btn-sm" onclick="closeEditModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveQuestionEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   <header>
     <h1>考研数学每日错题训练</h1>
@@ -1038,7 +1064,10 @@ function renderList() {
           <span class="q-item-id">#${q.id}</span>
           <span class="q-item-title">${esc(q.title)}</span>
         </div>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn btn-outline btn-sm" onclick="openEditModal(${q.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
+        </div>
       </div>
       <div class="q-item-meta">
         <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
@@ -1058,6 +1087,43 @@ function confirmDelete(id) {
     const q = qs.find(q => q.id === id);
     if (q) { q.active = false; saveQuestions(qs); renderList(); toast('已删除'); }
   });
+}
+
+function openEditModal(id) {
+  const q = getQuestions().find(q => q.id === id && q.active);
+  if (!q) { toast('错题不存在'); return; }
+  document.getElementById('edit-id').value = q.id;
+  document.getElementById('edit-type').value = q.type || '高数';
+  document.getElementById('edit-title').value = q.title || '';
+  document.getElementById('edit-chapter').value = q.chapter || '';
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+function saveQuestionEdit() {
+  const id = Number(document.getElementById('edit-id').value);
+  const type = document.getElementById('edit-type').value;
+  const title = document.getElementById('edit-title').value.trim();
+  const chapter = document.getElementById('edit-chapter').value.trim();
+
+  if (!title) { toast('错题标题不能为空'); return; }
+
+  const qs = getQuestions();
+  const q = qs.find(q => q.id === id && q.active);
+  if (!q) { toast('错题不存在'); return; }
+
+  q.type = type;
+  q.title = title;
+  q.chapter = chapter;
+  saveQuestions(qs);
+  closeEditModal();
+  renderList();
+  searchQuestions();
+  if (!practiceSession) renderPractice();
+  toast('错题已更新');
 }
 
 function esc(s) {
@@ -1091,6 +1157,7 @@ function searchQuestions() {
           <span class="q-item-id">#${q.id}</span>
           <span class="q-item-title">${esc(q.title)}</span>
         </div>
+        <button class="btn btn-outline btn-sm" onclick="openEditModal(${q.id})">编辑</button>
       </div>
       <div class="q-item-meta">
         <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
