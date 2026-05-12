@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-12 19:01:44",
+  "exported_at": "2026-05-12 19:33:47",
   "questions": [
     {
       "id": 1,
@@ -8,15 +8,15 @@
       "title": "30讲例题1.1",
       "chapter": "",
       "created_at": "2026-05-12 17:26:59",
-      "last_practiced_at": "2026-05-12 18:59:07",
-      "practiced_count": 4,
+      "last_practiced_at": null,
+      "practiced_count": 0,
       "active": true,
-      "ease": 2.3499999999999996,
-      "interval_days": 3,
-      "next_review_at": "2026-05-15",
-      "correct_count": 1,
-      "wrong_count": 1,
-      "last_result": "good"
+      "ease": 2.5,
+      "interval_days": 0,
+      "next_review_at": null,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "last_result": null
     },
     {
       "id": 2,
@@ -24,15 +24,15 @@
       "title": "30讲例题1.3",
       "chapter": "",
       "created_at": "2026-05-12 17:27:42",
-      "last_practiced_at": "2026-05-12 18:59:08",
-      "practiced_count": 4,
+      "last_practiced_at": null,
+      "practiced_count": 0,
       "active": true,
       "ease": 2.5,
-      "interval_days": 5,
-      "next_review_at": "2026-05-17",
-      "correct_count": 1,
-      "wrong_count": 1,
-      "last_result": "good"
+      "interval_days": 0,
+      "next_review_at": null,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "last_result": null
     },
     {
       "id": 3,
@@ -40,15 +40,15 @@
       "title": "30讲例题1.6",
       "chapter": "",
       "created_at": "2026-05-12 17:27:53",
-      "last_practiced_at": "2026-05-12 19:00:08",
-      "practiced_count": 4,
+      "last_practiced_at": null,
+      "practiced_count": 0,
       "active": true,
-      "ease": 2.5999999999999996,
-      "interval_days": 8,
-      "next_review_at": "2026-05-20",
-      "correct_count": 2,
+      "ease": 2.5,
+      "interval_days": 0,
+      "next_review_at": null,
+      "correct_count": 0,
       "wrong_count": 0,
-      "last_result": "good"
+      "last_result": null
     },
     {
       "id": 4,
@@ -56,15 +56,15 @@
       "title": "30讲例题1.8",
       "chapter": "",
       "created_at": "2026-05-12 17:28:04",
-      "last_practiced_at": "2026-05-12 19:00:09",
-      "practiced_count": 4,
+      "last_practiced_at": null,
+      "practiced_count": 0,
       "active": true,
-      "ease": 2.3499999999999996,
-      "interval_days": 3,
-      "next_review_at": "2026-05-15",
-      "correct_count": 1,
-      "wrong_count": 1,
-      "last_result": "good"
+      "ease": 2.5,
+      "interval_days": 0,
+      "next_review_at": null,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "last_result": null
     },
     {
       "id": 5,
@@ -92,5 +92,5 @@
       }
     }
   },
-  "cloud_saved_at": "2026-05-12 19:01:44"
+  "cloud_saved_at": "2026-05-12 19:33:47"
 }
