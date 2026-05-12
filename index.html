@@ -533,6 +533,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   <!-- 每日训练 -->
   <div class="panel active" id="panel-practice">
     <div class="stats" id="stats-area"></div>
+    <div id="home-cloud-status" class="import-summary warn">未配置 GitHub 同步</div>
     <div class="card">
       <h2>今日训练</h2>
       <div id="practice-area"></div>
@@ -852,7 +853,7 @@ function loadCloudConfig() {
   document.getElementById('cloud-branch').value = config.branch || 'data';
   document.getElementById('cloud-path').value = config.path || 'backup.json';
   document.getElementById('cloud-autosave').checked = !!config.autoSave;
-  updateCloudStatus(config.autoSave ? 'GitHub 自动上传已开启' : 'GitHub 配置已保存，自动上传未开启', 'ok');
+  refreshCloudStatusSummary();
 }
 
 function clearCloudConfig() {
@@ -870,10 +871,25 @@ function clearCloudConfig() {
 }
 
 function updateCloudStatus(msg, type = 'warn') {
-  const el = document.getElementById('cloud-status');
-  if (!el) return;
-  el.className = `import-summary ${type}`;
-  el.textContent = msg;
+  ['cloud-status', 'home-cloud-status'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = `import-summary ${type}`;
+    el.textContent = msg;
+  });
+}
+
+function refreshCloudStatusSummary() {
+  const config = getCloudConfig();
+  if (!config || !config.token) {
+    updateCloudStatus('未配置 GitHub 同步', 'warn');
+    return;
+  }
+  if (config.lastUploadedAt) {
+    updateCloudStatus(`GitHub 已同步：${config.lastUploadedAt}`, 'ok');
+    return;
+  }
+  updateCloudStatus(config.autoSave ? 'GitHub 自动同步已开启，等待首次上传' : 'GitHub 已配置，自动同步未开启', 'ok');
 }
 
 function githubHeaders(config) {
@@ -988,8 +1004,9 @@ async function uploadCloudNow(silent = false, force = false) {
     const data = { ...buildBackupData(), cloud_saved_at: nowStr() };
     const sha = await githubPutBackup(config, data, remote.sha);
     config.sha = sha;
+    config.lastUploadedAt = nowStr();
     localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
-    updateCloudStatus(`已上传到 GitHub：${config.path}，时间 ${nowStr()}`, 'ok');
+    updateCloudStatus(`已上传到 GitHub：${config.path}，时间 ${config.lastUploadedAt}`, 'ok');
     if (!silent) toast('已上传到 GitHub');
   } catch (err) {
     updateCloudStatus(err.message, 'warn');
@@ -1037,6 +1054,18 @@ function createQuestion(data) {
 
 function normalizeQuestion(q) {
   return createQuestion(q);
+}
+
+function duplicateKey(q) {
+  const type = q.type || '高数';
+  const title = (q.title || '').trim().replace(/\s+/g, '');
+  const chapter = (q.chapter || '').trim().replace(/\s+/g, '');
+  return `${type}|${title}|${chapter}`;
+}
+
+function findDuplicateQuestion(candidate, questions) {
+  const key = duplicateKey(candidate);
+  return questions.find(q => q.active && duplicateKey(q) === key);
 }
 
 // ===================== 权重计算 =====================
@@ -1104,11 +1133,22 @@ function addQuestion() {
   if (!title) { toast('错题标题不能为空'); return; }
 
   const qs = getQuestions();
+  const candidate = { type, title, chapter };
+  const duplicate = findDuplicateQuestion(candidate, qs);
+  if (duplicate) {
+    showModal(`发现可能重复的错题：#${duplicate.id} ${duplicate.title}。仍然添加吗？`, () => addQuestionDirect(qs, candidate));
+    return;
+  }
+
+  addQuestionDirect(qs, candidate);
+}
+
+function addQuestionDirect(qs, data) {
   qs.push(createQuestion({
     id: getNextId(qs),
-    type,
-    title,
-    chapter,
+    type: data.type,
+    title: data.title,
+    chapter: data.chapter,
     created_at: nowStr(),
     last_practiced_at: null,
     practiced_count: 0,
@@ -1372,12 +1412,17 @@ function renderPractice() {
   const active = qs.filter(q => q.active);
   const gsActive = active.filter(q => (q.type || '高数') === '高数');
   const xdActive = active.filter(q => q.type === '线代');
-  const totalPracticed = qs.reduce((s, q) => s + (q.practiced_count || 0), 0);
+  const stats7 = getLast7DaysStats();
+  const goodRate = stats7.total ? Math.round(stats7.good / stats7.total * 100) : 0;
+  refreshCloudStatusSummary();
 
   document.getElementById('stats-area').innerHTML = `
     <div class="stat-box"><div class="num">${active.length}</div><div class="label">错题总数</div></div>
     <div class="stat-box"><div class="num">${gsActive.length}</div><div class="label">高数</div></div>
     <div class="stat-box"><div class="num">${xdActive.length}</div><div class="label">线代</div></div>
+    <div class="stat-box"><div class="num">${stats7.total}</div><div class="label">近 7 天练习</div></div>
+    <div class="stat-box"><div class="num">${stats7.today}</div><div class="label">今日完成</div></div>
+    <div class="stat-box"><div class="num">${goodRate}%</div><div class="label">近 7 天会了率</div></div>
   `;
 
   // 如果有进行中的练习，继续显示
@@ -1521,6 +1566,7 @@ function markPracticeResult(idx, result) {
   const qs = getQuestions();
   const real = qs.find(r => r.id === q.id);
   const updated = updateReviewState(real || q, result);
+  recordPracticeResult(updated, result);
 
   if (real) saveQuestions(qs);
   Object.assign(q, updated);
@@ -1539,6 +1585,46 @@ function markPracticeResult(idx, result) {
   if (next !== -1) practiceSession.current = next;
 
   renderPracticeSession();
+}
+
+function recordPracticeResult(q, result) {
+  const records = getDailyRecords();
+  const today = todayStr();
+  const current = records[today];
+  const rec = Array.isArray(current) ? { question_ids: current } : (current || {});
+  rec.question_ids = rec.question_ids || [];
+  rec.results = rec.results || [];
+  rec.summary = rec.summary || { attempted: 0, again: 0, hard: 0, good: 0 };
+  rec.results.push({
+    question_id: q.id,
+    type: q.type || '高数',
+    result,
+    answered_at: nowStr()
+  });
+  rec.summary.attempted = (rec.summary.attempted || 0) + 1;
+  rec.summary[result] = (rec.summary[result] || 0) + 1;
+  rec.updated_at = nowStr();
+  records[today] = rec;
+  saveDailyRecords(records);
+}
+
+function getLast7DaysStats() {
+  const records = getDailyRecords();
+  const stats = { total: 0, today: 0, again: 0, hard: 0, good: 0 };
+  const base = new Date(); base.setHours(0,0,0,0);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(base);
+    d.setDate(base.getDate() - i);
+    const rec = records[formatDate(d)];
+    const summary = Array.isArray(rec) ? null : rec?.summary;
+    const attempted = summary?.attempted || 0;
+    stats.total += attempted;
+    stats.again += summary?.again || 0;
+    stats.hard += summary?.hard || 0;
+    stats.good += summary?.good || 0;
+    if (i === 0) stats.today = attempted;
+  }
+  return stats;
 }
 
 function updateReviewState(q, result) {
@@ -1651,6 +1737,19 @@ function parseAndPreview(csvText) {
     rows.push({ type: type || '高数', title, chapter });
   }
 
+  const existing = getQuestions();
+  const seen = new Set();
+  let existingDupCount = 0;
+  let fileDupCount = 0;
+  rows.forEach(r => {
+    r.duplicate = findDuplicateQuestion(r, existing) ? 'existing' : '';
+    const key = duplicateKey(r);
+    if (seen.has(key)) r.duplicate = 'file';
+    seen.add(key);
+    if (r.duplicate === 'existing') existingDupCount++;
+    if (r.duplicate === 'file') fileDupCount++;
+  });
+
   // 渲染预览
   let html = '';
 
@@ -1658,17 +1757,22 @@ function parseAndPreview(csvText) {
     html += `<div class="import-summary ok">解析成功 <strong>${rows.length}</strong> 道错题${errors.length ? `，<strong style="color:var(--danger)">${errors.length}</strong> 行有错误` : ''}</div>`;
   }
 
+  if (existingDupCount || fileDupCount) {
+    html += `<div class="import-summary warn">发现重复：与错题库重复 ${existingDupCount} 道，CSV 内部重复 ${fileDupCount} 道。确认导入时会自动跳过重复项。</div>`;
+  }
+
   if (errors.length) {
     html += `<div class="import-summary warn">错误行：${errors.map(e => `第${e.line}行(${e.reason})`).join('、')}</div>`;
   }
 
   if (rows.length) {
-    html += '<table class="preview-table"><thead><tr><th>类型</th><th>错题标题</th><th>章节</th></tr></thead><tbody>';
+    html += '<table class="preview-table"><thead><tr><th>类型</th><th>错题标题</th><th>章节</th><th>状态</th></tr></thead><tbody>';
     for (const r of rows) {
-      html += `<tr class="ok"><td><span class="type-tag ${r.type === '线代' ? 'xd' : 'gs'}">${esc(r.type)}</span></td><td>${esc(r.title)}</td><td>${esc(r.chapter)}</td></tr>`;
+      const status = r.duplicate === 'existing' ? '与错题库重复' : r.duplicate === 'file' ? 'CSV 内重复' : '可导入';
+      html += `<tr class="${r.duplicate ? 'err' : 'ok'}"><td><span class="type-tag ${r.type === '线代' ? 'xd' : 'gs'}">${esc(r.type)}</span></td><td>${esc(r.title)}</td><td>${esc(r.chapter)}</td><td>${status}</td></tr>`;
     }
     html += '</tbody></table>';
-    html += `<button class="btn btn-primary" onclick='importQuestions(${JSON.stringify(rows).replace(/'/g, "\\'")})'>确认导入 ${rows.length} 道错题</button>`;
+    html += `<button class="btn btn-primary" onclick='importQuestions(${JSON.stringify(rows).replace(/'/g, "\\'")})'>确认导入，自动跳过重复项</button>`;
   }
 
   if (!rows.length && !errors.length) {
@@ -1703,8 +1807,17 @@ function importQuestions(rows) {
   const qs = getQuestions();
   let nextId = getNextId(qs);
   const now = nowStr();
+  const seen = new Set();
+  let imported = 0;
+  let skipped = 0;
 
   for (const r of rows) {
+    const key = duplicateKey(r);
+    if (seen.has(key) || findDuplicateQuestion(r, qs)) {
+      skipped++;
+      continue;
+    }
+    seen.add(key);
     qs.push(createQuestion({
       id: nextId++,
       type: r.type,
@@ -1715,12 +1828,13 @@ function importQuestions(rows) {
       practiced_count: 0,
       active: true
     }));
+    imported++;
   }
 
   saveQuestions(qs);
   document.getElementById('import-preview').innerHTML =
-    `<div class="import-summary ok">成功导入 <strong>${rows.length}</strong> 道错题！</div>`;
-  toast(`已导入 ${rows.length} 道错题`);
+    `<div class="import-summary ok">成功导入 <strong>${imported}</strong> 道错题${skipped ? `，跳过 <strong>${skipped}</strong> 道重复题` : ''}。</div>`;
+  toast(`已导入 ${imported} 道错题`);
 }
 
 // ===================== 初始化 =====================
