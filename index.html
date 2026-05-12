@@ -1358,7 +1358,10 @@ function searchQuestions() {
           <span class="q-item-id">#${q.id}</span>
           <span class="q-item-title">${esc(q.title)}</span>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="openEditModal(${q.id})">编辑</button>
+        <div class="q-actions">
+          <button class="btn btn-outline btn-sm" onclick="openEditModal(${q.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
+        </div>
       </div>
       <div class="q-item-meta">
         <span class="type-tag ${q.type === '线代' ? 'xd' : 'gs'}">${esc(q.type || '高数')}</span>
