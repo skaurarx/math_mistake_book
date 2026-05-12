@@ -663,7 +663,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
         </div>
         <div class="form-group">
           <label>Branch</label>
-          <input type="text" id="cloud-branch" value="main">
+          <input type="text" id="cloud-branch" value="data">
         </div>
         <div class="form-group">
           <label>备份文件路径</label>
@@ -822,7 +822,7 @@ function saveCloudConfig() {
     token: document.getElementById('cloud-token').value.trim(),
     owner: document.getElementById('cloud-owner').value.trim() || 'skaurarx',
     repo: document.getElementById('cloud-repo').value.trim() || 'math_mistake_book',
-    branch: document.getElementById('cloud-branch').value.trim() || 'main',
+    branch: document.getElementById('cloud-branch').value.trim() || 'data',
     path: document.getElementById('cloud-path').value.trim() || 'backup.json',
     autoSave: document.getElementById('cloud-autosave').checked,
     sha: (getCloudConfig() || {}).sha || null
@@ -838,10 +838,15 @@ function saveCloudConfig() {
 function loadCloudConfig() {
   const config = getCloudConfig();
   if (!config) return;
+  if (config.branch === 'main' && (config.path || 'backup.json') === 'backup.json') {
+    config.branch = 'data';
+    config.sha = null;
+    localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
+  }
   document.getElementById('cloud-token').value = config.token || '';
   document.getElementById('cloud-owner').value = config.owner || 'skaurarx';
   document.getElementById('cloud-repo').value = config.repo || 'math_mistake_book';
-  document.getElementById('cloud-branch').value = config.branch || 'main';
+  document.getElementById('cloud-branch').value = config.branch || 'data';
   document.getElementById('cloud-path').value = config.path || 'backup.json';
   document.getElementById('cloud-autosave').checked = !!config.autoSave;
   updateCloudStatus(config.autoSave ? 'GitHub 自动上传已开启' : 'GitHub 配置已保存，自动上传未开启', 'ok');
@@ -853,7 +858,7 @@ function clearCloudConfig() {
     document.getElementById('cloud-token').value = '';
     document.getElementById('cloud-owner').value = 'skaurarx';
     document.getElementById('cloud-repo').value = 'math_mistake_book';
-    document.getElementById('cloud-branch').value = 'main';
+    document.getElementById('cloud-branch').value = 'data';
     document.getElementById('cloud-path').value = 'backup.json';
     document.getElementById('cloud-autosave').checked = false;
     updateCloudStatus('未配置 GitHub 同步', 'warn');
