@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研数学每日错题训练系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --warning: #f59e0b;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+header {
+  text-align: center;
+  padding: 24px 0 20px;
+}
+
+header h1 {
+  font-size: 1.6em;
+  color: var(--primary);
+}
+
+header p {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+
+/* 导航 */
+nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+nav button {
+  padding: 8px 16px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+nav button:hover { border-color: var(--primary); color: var(--primary); }
+nav button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* 面板 */
+.panel { display: none; }
+.panel.active { display: block; }
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+  font-size: 1.15em;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* 表单 */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95em;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-group input:focus { border-color: var(--primary); }
+
+/* 按钮 */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: var(--danger-hover); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { opacity: 0.9; }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+.btn-sm { padding: 6px 12px; font-size: 0.8em; }
+
+/* 题目列表 */
+.q-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.q-item:last-child { border-bottom: none; }
+
+.q-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.q-item-title {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.q-item-id {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85em;
+}
+
+.q-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 0.82em;
+  color: var(--text-secondary);
+}
+
+.q-item-meta span::before {
+  margin-right: 3px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.78em;
+  background: #eef2ff;
+  color: var(--primary);
+}
+
+.weight-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.78em;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* 练习卡片 */
+.practice-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--primary);
+}
+
+.practice-card.done {
+  border-left-color: var(--success);
+  opacity: 0.7;
+}
+
+.practice-progress {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.practice-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+
+/* 提示 */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  padding: 10px 24px;
+  border-radius: 8px;
+  background: var(--text);
+  color: #fff;
+  font-size: 0.9em;
+  z-index: 999;
+  transition: transform 0.3s;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* 统计 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 14px;
+  background: var(--card);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.stat-box .num {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-box .label {
+  font-size: 0.78em;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* 搜索 */
+.search-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95em;
+  outline: none;
+}
+
+.search-box input:focus { border-color: var(--primary); }
+
+/* 确认弹窗 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal h3 { margin-bottom: 10px; }
+.modal p { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 18px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+@media (max-width: 500px) {
+  .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  nav button { padding: 6px 12px; font-size: 0.82em; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">确认</h3>
+    <p id="modal-msg"></p>
+    <div class="modal-btns">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger btn-sm" id="modal-confirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <h1>考研数学每日错题训练</h1>
+    <p>加权随机抽题 · 间隔重复巩固</p>
+  </header>
+
+  <nav>
+    <button class="active" onclick="switchTab('practice')">每日训练</button>
+    <button onclick="switchTab('add')">添加错题</button>
+    <button onclick="switchTab('list')">错题库</button>
+    <button onclick="switchTab('search')">搜索</button>
+  </nav>
+
+  <!-- 每日训练 -->
+  <div class="panel active" id="panel-practice">
+    <div class="stats" id="stats-area"></div>
+    <div class="card">
+      <h2>今日训练</h2>
+      <div id="practice-area"></div>
+    </div>
+  </div>
+
+  <!-- 添加错题 -->
+  <div class="panel" id="panel-add">
+    <div class="card">
+      <h2>添加错题</h2>
+      <div class="form-group">
+        <label>错题标题</label>
+        <input type="text" id="input-title" placeholder="例如：极限计算错题1">
+      </div>
+      <div class="form-group">
+        <label>章节</label>
+        <input type="text" id="input-chapter" placeholder="例如：函数、极限与连续">
+      </div>
+      <button class="btn btn-primary" onclick="addQuestion()">添加</button>
+    </div>
+  </div>
+
+  <!-- 错题库 -->
+  <div class="panel" id="panel-list">
+    <div class="card">
+      <h2>错题库 <span id="list-count"></span></h2>
+      <div id="list-area"></div>
+    </div>
+  </div>
+
+  <!-- 搜索 -->
+  <div class="panel" id="panel-search">
+    <div class="card">
+      <h2>搜索错题</h2>
+      <div class="search-box">
+        <input type="text" id="input-search" placeholder="搜索标题或章节" oninput="searchQuestions()">
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== 常量 =====================
+const QUESTIONS_KEY = 'mb_questions';
+const DAILY_KEY = 'mb_daily_records';
+const DAILY_COUNT = 10;
+
+// ===================== 工具函数 =====================
+
+function nowStr() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function todayStr() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function parseDate(text) {
+  if (!text) return null;
+  const m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  return new Date(+m[1], +m[2]-1, +m[3]);
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function showModal(msg, onConfirm) {
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal').classList.add('show');
+  const btn = document.getElementById('modal-confirm');
+  btn.onclick = () => { closeModal(); onConfirm(); };
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+// ===================== 数据读写 =====================
+
+function getQuestions() {
+  try {
+    return JSON.parse(localStorage.getItem(QUESTIONS_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveQuestions(qs) {
+  localStorage.setItem(QUESTIONS_KEY, JSON.stringify(qs));
+}
+
+function getDailyRecords() {
+  try {
+    return JSON.parse(localStorage.getItem(DAILY_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveDailyRecords(recs) {
+  localStorage.setItem(DAILY_KEY, JSON.stringify(recs));
+}
+
+function getNextId(qs) {
+  if (!qs.length) return 1;
+  return Math.max(...qs.map(q => q.id || 0)) + 1;
+}
+
+// ===================== 权重计算 =====================
+
+function calculateWeight(q) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const created = parseDate(q.created_at);
+  const lastP = parseDate(q.last_practiced_at);
+
+  let daysNotPracticed, bonus = 0;
+  if (lastP) {
+    daysNotPracticed = Math.floor((today - lastP) / 86400000);
+  } else {
+    daysNotPracticed = created ? Math.floor((today - created) / 86400000) : 0;
+    bonus = 3;
+  }
+  daysNotPracticed = Math.min(daysNotPracticed, 90);
+
+  let weight = 1 + daysNotPracticed * 0.08 + bonus;
+  const count = q.practiced_count || 0;
+  const factor = Math.max(0.6, 1.2 - count * 0.05);
+  return weight * factor;
+}
+
+function weightedSample(pool, count) {
+  const selected = [];
+  const arr = [...pool];
+  count = Math.min(count, arr.length);
+
+  for (let i = 0; i < count; i++) {
+    const weights = arr.map(q => calculateWeight(q));
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    let idx = 0;
+    for (let j = 0; j < weights.length; j++) {
+      r -= weights[j];
+      if (r <= 0) { idx = j; break; }
+    }
+    selected.push(arr[idx]);
+    arr.splice(idx, 1);
+  }
+  return selected;
+}
+
+// ===================== 导航 =====================
+
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+
+  if (name === 'practice') renderPractice();
+  if (name === 'list') renderList();
+}
+
+// ===================== 添加错题 =====================
+
+function addQuestion() {
+  const title = document.getElementById('input-title').value.trim();
+  const chapter = document.getElementById('input-chapter').value.trim();
+
+  if (!title) { toast('错题标题不能为空'); return; }
+
+  const qs = getQuestions();
+  qs.push({
+    id: getNextId(qs),
+    title,
+    chapter,
+    created_at: nowStr(),
+    last_practiced_at: null,
+    practiced_count: 0,
+    active: true
+  });
+  saveQuestions(qs);
+
+  document.getElementById('input-title').value = '';
+  document.getElementById('input-chapter').value = '';
+  toast('添加成功！');
+}
+
+// ===================== 错题列表 =====================
+
+function renderList() {
+  const qs = getQuestions().filter(q => q.active);
+  const area = document.getElementById('list-area');
+  document.getElementById('list-count').textContent = `(${qs.length} 道)`;
+
+  if (!qs.length) {
+    area.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>错题库为空，请先添加错题</div>';
+    return;
+  }
+
+  area.innerHTML = qs.map(q => `
+    <div class="q-item">
+      <div class="q-item-header">
+        <div>
+          <span class="q-item-id">#${q.id}</span>
+          <span class="q-item-title">${esc(q.title)}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${q.id})">删除</button>
+      </div>
+      <div class="q-item-meta">
+        ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+        <span>添加: ${q.created_at || '无'}</span>
+        <span>上次练习: ${q.last_practiced_at || '从未'}</span>
+        <span>练习 ${q.practiced_count || 0} 次</span>
+        <span class="weight-badge">权重 ${calculateWeight(q).toFixed(2)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function confirmDelete(id) {
+  showModal('确定删除这道错题吗？（软删除，不再出现在抽题中）', () => {
+    const qs = getQuestions();
+    const q = qs.find(q => q.id === id);
+    if (q) { q.active = false; saveQuestions(qs); renderList(); toast('已删除'); }
+  });
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ===================== 搜索 =====================
+
+function searchQuestions() {
+  const kw = document.getElementById('input-search').value.trim();
+  const area = document.getElementById('search-results');
+
+  if (!kw) { area.innerHTML = ''; return; }
+
+  const qs = getQuestions().filter(q =>
+    q.active && ((q.title || '') + (q.chapter || '')).includes(kw)
+  );
+
+  if (!qs.length) {
+    area.innerHTML = '<div class="empty">没有搜索到相关错题</div>';
+    return;
+  }
+
+  area.innerHTML = `<p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:10px">共 ${qs.length} 道</p>` +
+    qs.map(q => `
+    <div class="q-item">
+      <div class="q-item-header">
+        <div>
+          <span class="q-item-id">#${q.id}</span>
+          <span class="q-item-title">${esc(q.title)}</span>
+        </div>
+      </div>
+      <div class="q-item-meta">
+        ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+        <span>上次练习: ${q.last_practiced_at || '从未'}</span>
+        <span>练习 ${q.practiced_count || 0} 次</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== 每日训练 =====================
+
+let practiceSession = null; // { questions: [], current: 0, done: Set }
+
+function getDailyQuestions(forceRefresh) {
+  const qs = getQuestions().filter(q => q.active);
+  if (!qs.length) return [];
+
+  const today = todayStr();
+  const records = getDailyRecords();
+  const activeIds = new Set(qs.map(q => q.id));
+
+  if (!forceRefresh && records[today]) {
+    const rec = records[today];
+    const ids = Array.isArray(rec) ? rec : (rec.question_ids || []);
+    const valid = ids.filter(id => activeIds.has(id));
+    const matched = qs.filter(q => valid.includes(q.id));
+    if (matched.length) return matched;
+  }
+
+  const selected = weightedSample(qs, DAILY_COUNT);
+  records[today] = { generated_at: nowStr(), question_ids: selected.map(q => q.id) };
+  saveDailyRecords(records);
+  return selected;
+}
+
+function renderPractice() {
+  // 统计
+  const qs = getQuestions();
+  const active = qs.filter(q => q.active);
+  const totalPracticed = qs.reduce((s, q) => s + (q.practiced_count || 0), 0);
+  const neverPracticed = active.filter(q => !q.last_practiced_at).length;
+
+  document.getElementById('stats-area').innerHTML = `
+    <div class="stat-box"><div class="num">${active.length}</div><div class="label">错题总数</div></div>
+    <div class="stat-box"><div class="num">${totalPracticed}</div><div class="label">累计练习</div></div>
+    <div class="stat-box"><div class="num">${neverPracticed}</div><div class="label">未练习</div></div>
+  `;
+
+  // 如果有进行中的练习，继续显示
+  if (practiceSession) {
+    renderPracticeSession();
+    return;
+  }
+
+  const area = document.getElementById('practice-area');
+  const dailyQs = getDailyQuestions(false);
+  const today = todayStr();
+  const records = getDailyRecords();
+  const alreadyDone = records[today] && !practiceSession;
+
+  area.innerHTML = `
+    <p style="color:var(--text-secondary);margin-bottom:14px">
+      今日已生成 ${dailyQs.length} 道错题。规则：越久没练过的题越容易被抽中。
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="startPractice()">开始今日训练</button>
+      <button class="btn btn-outline" onclick="refreshDaily()">重新随机生成</button>
+    </div>
+  `;
+}
+
+function startPractice() {
+  const qs = getDailyQuestions(false);
+  if (!qs.length) { toast('错题库为空，请先添加错题'); return; }
+
+  practiceSession = { questions: qs, current: 0, done: new Set() };
+  renderPracticeSession();
+}
+
+function refreshDaily() {
+  showModal('重新生成会替换今日题单，确定吗？', () => {
+    const qs = getDailyQuestions(true);
+    practiceSession = null;
+    toast('已重新生成今日题单');
+    renderPractice();
+  });
+}
+
+function renderPracticeSession() {
+  const { questions, current, done } = practiceSession;
+  const area = document.getElementById('practice-area');
+  const total = questions.length;
+  const doneCount = done.size;
+
+  if (doneCount >= total) {
+    // 完成
+    practiceSession = null;
+    area.innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:2.5em;margin-bottom:10px"></div>
+        <h3>今日训练完成！</h3>
+        <p style="color:var(--text-secondary);margin:8px 0">共完成 ${total} 道错题</p>
+        <p style="color:var(--text-secondary);font-size:0.85em">练习时间已记录，后续抽题权重会自动调整</p>
+        <button class="btn btn-primary" style="margin-top:16px" onclick="renderPractice()">返回</button>
+      </div>
+    `;
+    return;
+  }
+
+  const q = questions[current];
+  const isDone = done.has(current);
+
+  area.innerHTML = `
+    <div class="practice-progress">
+      第 ${current + 1} / ${total} 题 · 已完成 ${doneCount} 题
+      <div class="progress-bar"><div class="progress-bar-fill" style="width:${(doneCount/total*100)}%"></div></div>
+    </div>
+    <div class="practice-card ${isDone ? 'done' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+        <span class="q-item-id">#${q.id}</span>
+        ${q.chapter ? `<span class="tag">${esc(q.chapter)}</span>` : ''}
+      </div>
+      <div class="q-item-title" style="font-size:1.1em;margin-bottom:10px">${esc(q.title)}</div>
+      <div class="q-item-meta">
+        <span>上次练习: ${q.last_practiced_at || '从未'}</span>
+        <span>累计 ${q.practiced_count || 0} 次</span>
+        <span class="weight-badge">权重 ${calculateWeight(q).toFixed(2)}</span>
+      </div>
+      ${!isDone ? `
+        <div style="margin-top:16px">
+          <button class="btn btn-success" onclick="markDone(${current})">完成本题</button>
+        </div>
+      ` : '<div style="margin-top:10px;color:var(--success);font-size:0.85em">已完成</div>'}
+    </div>
+    <div class="practice-nav">
+      <button class="btn btn-outline btn-sm" ${current === 0 ? 'disabled style="opacity:0.4"' : ''} onclick="practiceNav(-1)">上一题</button>
+      <button class="btn btn-outline btn-sm" ${current >= total - 1 ? 'disabled style="opacity:0.4"' : ''} onclick="practiceNav(1)">下一题</button>
+    </div>
+  `;
+}
+
+function markDone(idx) {
+  const q = practiceSession.questions[idx];
+  // 更新数据
+  const qs = getQuestions();
+  const real = qs.find(r => r.id === q.id);
+  if (real) {
+    real.last_practiced_at = nowStr();
+    real.practiced_count = (real.practiced_count || 0) + 1;
+    saveQuestions(qs);
+  }
+  // 更新 session
+  q.last_practiced_at = nowStr();
+  q.practiced_count = (q.practiced_count || 0) + 1;
+  practiceSession.done.add(idx);
+
+  // 自动跳到下一题未完成的
+  const { questions, done } = practiceSession;
+  let next = -1;
+  for (let i = idx + 1; i < questions.length; i++) {
+    if (!done.has(i)) { next = i; break; }
+  }
+  if (next === -1) {
+    for (let i = 0; i < idx; i++) {
+      if (!done.has(i)) { next = i; break; }
+    }
+  }
+  if (next !== -1) practiceSession.current = next;
+
+  renderPracticeSession();
+}
+
+function practiceNav(dir) {
+  const { current, questions } = practiceSession;
+  const next = current + dir;
+  if (next < 0 || next >= questions.length) return;
+  practiceSession.current = next;
+  renderPracticeSession();
+}
+
+// ===================== 初始化 =====================
+renderPractice();
+</script>
+</body>
+</html>
