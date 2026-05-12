@@ -1227,11 +1227,22 @@ function restoreQuestion(id) {
   const qs = getQuestions();
   const q = qs.find(q => q.id === id);
   if (!q) { toast('错题不存在'); return; }
-  q.active = true;
+  Object.assign(q, createQuestion({
+    ...q,
+    active: true,
+    last_practiced_at: null,
+    practiced_count: 0,
+    ease: 2.5,
+    interval_days: 0,
+    next_review_at: null,
+    correct_count: 0,
+    wrong_count: 0,
+    last_result: null
+  }));
   saveQuestions(qs);
   renderList();
   renderPractice();
-  toast('已恢复错题');
+  toast('已恢复错题，权重已重置');
 }
 
 function openEditModal(id) {
