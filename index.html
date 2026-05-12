@@ -565,6 +565,46 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
         恢复备份会覆盖当前浏览器里的错题库和每日训练记录，请先确认已经保存好当前数据。
       </div>
     </div>
+
+    <div class="card">
+      <h2>GitHub 自动同步</h2>
+      <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px">
+        可把完整备份自动保存到 GitHub。当前默认保存到公开仓库，<strong>backup.json 会公开可见</strong>；Token 只保存在当前浏览器中，不会写入代码。
+      </p>
+      <div class="form-group">
+        <label>GitHub Token</label>
+        <input type="password" id="cloud-token" placeholder="fine-grained token，需要 Contents 读写权限">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+        <div class="form-group">
+          <label>Owner</label>
+          <input type="text" id="cloud-owner" value="skaurarx">
+        </div>
+        <div class="form-group">
+          <label>Repo</label>
+          <input type="text" id="cloud-repo" value="math_mistake_book">
+        </div>
+        <div class="form-group">
+          <label>Branch</label>
+          <input type="text" id="cloud-branch" value="main">
+        </div>
+        <div class="form-group">
+          <label>备份文件路径</label>
+          <input type="text" id="cloud-path" value="backup.json">
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:0.9em">
+        <input type="checkbox" id="cloud-autosave"> 数据变化后自动上传
+      </label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-primary" onclick="saveCloudConfig()">保存配置</button>
+        <button class="btn btn-outline" onclick="testCloudConnection()">测试连接</button>
+        <button class="btn btn-success" onclick="uploadCloudNow()">立即上传</button>
+        <button class="btn btn-outline" onclick="restoreFromCloud()">从 GitHub 恢复</button>
+        <button class="btn btn-danger" onclick="clearCloudConfig()">清除配置</button>
+      </div>
+      <div id="cloud-status" class="import-summary warn">未配置 GitHub 同步</div>
+    </div>
   </div>
 </div>
 
@@ -572,6 +612,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
 // ===================== 常量 =====================
 const QUESTIONS_KEY = 'mb_questions';
 const DAILY_KEY = 'mb_daily_records';
+const CLOUD_KEY = 'mb_cloud_config';
 
 // ===================== 工具函数 =====================
 
@@ -622,6 +663,7 @@ function getQuestions() {
 
 function saveQuestions(qs) {
   localStorage.setItem(QUESTIONS_KEY, JSON.stringify(qs));
+  scheduleCloudAutoSave();
 }
 
 function getDailyRecords() {
@@ -632,15 +674,20 @@ function getDailyRecords() {
 
 function saveDailyRecords(recs) {
   localStorage.setItem(DAILY_KEY, JSON.stringify(recs));
+  scheduleCloudAutoSave();
 }
 
-function exportBackup() {
-  const data = {
+function buildBackupData() {
+  return {
     version: 1,
     exported_at: nowStr(),
     questions: getQuestions(),
     daily_records: getDailyRecords()
   };
+}
+
+function exportBackup() {
+  const data = buildBackupData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -666,19 +713,224 @@ function restoreBackup(text) {
     toast('JSON 文件格式错误');
     return;
   }
+  restoreBackupData(data, `确定恢复备份吗？将覆盖当前 ${getQuestions().filter(q => q.active).length} 道错题。`);
+}
 
+function restoreBackupData(data, message) {
   if (!Array.isArray(data.questions) || !data.daily_records || typeof data.daily_records !== 'object' || Array.isArray(data.daily_records)) {
     toast('不是有效的错题本备份');
     return;
   }
 
-  showModal(`确定恢复备份吗？将覆盖当前 ${getQuestions().filter(q => q.active).length} 道错题。`, () => {
+  showModal(message, () => {
+    restoringData = true;
     saveQuestions(data.questions);
     saveDailyRecords(data.daily_records);
+    restoringData = false;
     practiceSession = null;
     renderPractice();
+    scheduleCloudAutoSave();
     toast('备份已恢复');
   });
+}
+
+function getCloudConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(CLOUD_KEY)) || null;
+  } catch { return null; }
+}
+
+function saveCloudConfig() {
+  const config = {
+    token: document.getElementById('cloud-token').value.trim(),
+    owner: document.getElementById('cloud-owner').value.trim() || 'skaurarx',
+    repo: document.getElementById('cloud-repo').value.trim() || 'math_mistake_book',
+    branch: document.getElementById('cloud-branch').value.trim() || 'main',
+    path: document.getElementById('cloud-path').value.trim() || 'backup.json',
+    autoSave: document.getElementById('cloud-autosave').checked,
+    sha: (getCloudConfig() || {}).sha || null
+  };
+
+  if (!config.token) { toast('请填写 GitHub Token'); return null; }
+  localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
+  updateCloudStatus(config.autoSave ? '已保存配置，自动上传已开启' : '已保存配置，自动上传未开启', 'ok');
+  toast('GitHub 同步配置已保存');
+  return config;
+}
+
+function loadCloudConfig() {
+  const config = getCloudConfig();
+  if (!config) return;
+  document.getElementById('cloud-token').value = config.token || '';
+  document.getElementById('cloud-owner').value = config.owner || 'skaurarx';
+  document.getElementById('cloud-repo').value = config.repo || 'math_mistake_book';
+  document.getElementById('cloud-branch').value = config.branch || 'main';
+  document.getElementById('cloud-path').value = config.path || 'backup.json';
+  document.getElementById('cloud-autosave').checked = !!config.autoSave;
+  updateCloudStatus(config.autoSave ? 'GitHub 自动上传已开启' : 'GitHub 配置已保存，自动上传未开启', 'ok');
+}
+
+function clearCloudConfig() {
+  showModal('确定清除 GitHub 同步配置吗？Token 也会从当前浏览器删除。', () => {
+    localStorage.removeItem(CLOUD_KEY);
+    document.getElementById('cloud-token').value = '';
+    document.getElementById('cloud-owner').value = 'skaurarx';
+    document.getElementById('cloud-repo').value = 'math_mistake_book';
+    document.getElementById('cloud-branch').value = 'main';
+    document.getElementById('cloud-path').value = 'backup.json';
+    document.getElementById('cloud-autosave').checked = false;
+    updateCloudStatus('未配置 GitHub 同步', 'warn');
+    toast('已清除 GitHub 配置');
+  });
+}
+
+function updateCloudStatus(msg, type = 'warn') {
+  const el = document.getElementById('cloud-status');
+  if (!el) return;
+  el.className = `import-summary ${type}`;
+  el.textContent = msg;
+}
+
+function githubHeaders(config) {
+  return {
+    'Accept': 'application/vnd.github+json',
+    'Authorization': `Bearer ${config.token}`,
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+function githubContentUrl(config) {
+  return `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${config.path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(config.branch)}`;
+}
+
+function encodeBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+function decodeBase64(text) {
+  const binary = atob(text.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+async function githubGetBackup(config) {
+  const res = await fetch(githubContentUrl(config), { headers: githubHeaders(config) });
+  if (res.status === 404) return { data: null, sha: null };
+  if (!res.ok) throw new Error(await githubErrorMessage(res));
+  const file = await res.json();
+  return { data: JSON.parse(decodeBase64(file.content)), sha: file.sha };
+}
+
+async function githubPutBackup(config, data, sha) {
+  const url = githubContentUrl(config).replace(/\?ref=.*/, '');
+  const body = {
+    message: `自动备份错题本 ${nowStr()}`,
+    content: encodeBase64(JSON.stringify(data, null, 2)),
+    branch: config.branch
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: githubHeaders(config),
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(await githubErrorMessage(res));
+  const result = await res.json();
+  return result.content.sha;
+}
+
+async function githubErrorMessage(res) {
+  let msg = `GitHub 请求失败：${res.status}`;
+  try {
+    const data = await res.json();
+    if (data.message) msg += ` ${data.message}`;
+  } catch {}
+  if (res.status === 401 || res.status === 403) msg += '，请检查 Token 权限';
+  if (res.status === 409) msg = '云端文件已被修改，需要先处理冲突';
+  return msg;
+}
+
+let cloudSaveTimer = null;
+let restoringData = false;
+
+function scheduleCloudAutoSave() {
+  if (restoringData) return;
+  const config = getCloudConfig();
+  if (!config || !config.autoSave || !config.token) return;
+  clearTimeout(cloudSaveTimer);
+  updateCloudStatus('数据已变化，准备自动上传...', 'warn');
+  cloudSaveTimer = setTimeout(() => uploadCloudNow(true), 3000);
+}
+
+async function testCloudConnection() {
+  const config = saveCloudConfig();
+  if (!config) return;
+  updateCloudStatus('正在测试 GitHub 连接...', 'warn');
+  try {
+    const remote = await githubGetBackup(config);
+    config.sha = remote.sha;
+    localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
+    updateCloudStatus(remote.sha ? '连接成功，已找到云端备份文件' : '连接成功，云端还没有备份文件', 'ok');
+    toast('GitHub 连接成功');
+  } catch (err) {
+    updateCloudStatus(err.message, 'warn');
+    toast('GitHub 连接失败');
+  }
+}
+
+async function uploadCloudNow(silent = false, force = false) {
+  const config = getCloudConfig();
+  if (!config || !config.token) {
+    if (!silent) toast('请先保存 GitHub 配置');
+    return;
+  }
+
+  updateCloudStatus('正在上传到 GitHub...', 'warn');
+  try {
+    const remote = await githubGetBackup(config);
+    if (!force && config.sha && remote.sha && config.sha !== remote.sha) {
+      updateCloudStatus('云端备份已被其他地方修改，已暂停上传。可先导出本地 JSON，再手动决定覆盖或恢复。', 'warn');
+      if (!silent) {
+        showModal('云端备份已变化。确定用本地数据覆盖 GitHub 吗？', () => uploadCloudNow(false, true));
+      }
+      return;
+    }
+
+    const data = { ...buildBackupData(), cloud_saved_at: nowStr() };
+    const sha = await githubPutBackup(config, data, remote.sha);
+    config.sha = sha;
+    localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
+    updateCloudStatus(`已上传到 GitHub：${config.path}，时间 ${nowStr()}`, 'ok');
+    if (!silent) toast('已上传到 GitHub');
+  } catch (err) {
+    updateCloudStatus(err.message, 'warn');
+    if (!silent) toast('上传失败');
+  }
+}
+
+async function restoreFromCloud() {
+  const config = getCloudConfig();
+  if (!config || !config.token) { toast('请先保存 GitHub 配置'); return; }
+
+  updateCloudStatus('正在读取 GitHub 备份...', 'warn');
+  try {
+    const remote = await githubGetBackup(config);
+    if (!remote.data) {
+      updateCloudStatus('GitHub 上还没有备份文件', 'warn');
+      toast('云端暂无备份');
+      return;
+    }
+    config.sha = remote.sha;
+    localStorage.setItem(CLOUD_KEY, JSON.stringify(config));
+    restoreBackupData(remote.data, `确定用 GitHub 备份覆盖当前 ${getQuestions().filter(q => q.active).length} 道错题吗？`);
+  } catch (err) {
+    updateCloudStatus(err.message, 'warn');
+    toast('读取云端备份失败');
+  }
 }
 
 function getNextId(qs) {
@@ -1217,6 +1469,7 @@ function importQuestions(rows) {
 }
 
 // ===================== 初始化 =====================
+loadCloudConfig();
 renderPractice();
 </script>
 </body>
