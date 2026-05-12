@@ -412,6 +412,41 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   nav button { padding: 6px 12px; font-size: 0.82em; }
 }
+
+/* 导入预览表格 */
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  margin-bottom: 12px;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.preview-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.preview-table tr.err { background: #fef2f2; }
+.preview-table tr.ok { background: #f0fdf4; }
+
+.import-summary {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  margin-bottom: 12px;
+}
+
+.import-summary.ok { background: #f0fdf4; color: #065f46; }
+.import-summary.warn { background: #fefce8; color: #92400e; }
 </style>
 </head>
 <body>
@@ -438,6 +473,7 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   <nav>
     <button class="active" onclick="switchTab('practice')">每日训练</button>
     <button onclick="switchTab('add')">添加错题</button>
+    <button onclick="switchTab('import')">批量导入</button>
     <button onclick="switchTab('list')">错题库</button>
     <button onclick="switchTab('search')">搜索</button>
   </nav>
@@ -473,6 +509,23 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
         <input type="text" id="input-chapter" placeholder="例如：函数、极限与连续">
       </div>
       <button class="btn btn-primary" onclick="addQuestion()">添加</button>
+    </div>
+  </div>
+
+  <!-- 批量导入 -->
+  <div class="panel" id="panel-import">
+    <div class="card">
+      <h2>批量导入错题</h2>
+      <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:16px">
+        用 CSV 格式批量录入：Excel 编辑后另存为 CSV（UTF-8），然后上传。<br>
+        表格格式：<strong>类型</strong>（高数/线代）、<strong>错题标题</strong>、<strong>章节</strong>，每行一道题。
+      </p>
+      <div id="drop-zone" style="border:2px dashed var(--border);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color 0.15s">
+        <div style="font-size:2em;margin-bottom:8px">📄</div>
+        <div style="color:var(--text-secondary)">点击选择 CSV 文件，或拖拽到此处</div>
+        <input type="file" id="csv-file" accept=".csv" style="display:none">
+      </div>
+      <div id="import-preview" style="margin-top:16px"></div>
     </div>
   </div>
 
@@ -948,6 +1001,150 @@ function practiceNav(dir) {
   if (next < 0 || next >= questions.length) return;
   practiceSession.current = next;
   renderPracticeSession();
+}
+
+// ===================== 批量导入 =====================
+
+(function initDropZone() {
+  const zone = document.getElementById('drop-zone');
+  const input = document.getElementById('csv-file');
+
+  zone.addEventListener('click', () => input.click());
+
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'var(--primary)';
+    zone.style.background = '#f5f3ff';
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.style.borderColor = 'var(--border)';
+    zone.style.background = '';
+  });
+
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'var(--border)';
+    zone.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if (file) handleCSV(file);
+  });
+
+  input.addEventListener('change', () => {
+    if (input.files[0]) handleCSV(input.files[0]);
+  });
+})();
+
+function handleCSV(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    parseAndPreview(text);
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parseAndPreview(csvText) {
+  const lines = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+
+  if (lines.length < 2) {
+    document.getElementById('import-preview').innerHTML =
+      '<div class="import-summary warn">CSV 文件为空或只有表头</div>';
+    return;
+  }
+
+  // 跳过表头
+  const rows = [];
+  const errors = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    const type = (cols[0] || '').trim();
+    const title = (cols[1] || '').trim();
+    const chapter = (cols[2] || '').trim();
+
+    if (!title) {
+      errors.push({ line: i + 1, reason: '标题为空' });
+      continue;
+    }
+    if (type && type !== '高数' && type !== '线代') {
+      errors.push({ line: i + 1, reason: `类型"${type}"无效，应为高数或线代` });
+      continue;
+    }
+
+    rows.push({ type: type || '高数', title, chapter });
+  }
+
+  // 渲染预览
+  let html = '';
+
+  if (rows.length) {
+    html += `<div class="import-summary ok">解析成功 <strong>${rows.length}</strong> 道错题${errors.length ? `，<strong style="color:var(--danger)">${errors.length}</strong> 行有错误` : ''}</div>`;
+  }
+
+  if (errors.length) {
+    html += `<div class="import-summary warn">错误行：${errors.map(e => `第${e.line}行(${e.reason})`).join('、')}</div>`;
+  }
+
+  if (rows.length) {
+    html += '<table class="preview-table"><thead><tr><th>类型</th><th>错题标题</th><th>章节</th></tr></thead><tbody>';
+    for (const r of rows) {
+      html += `<tr class="ok"><td><span class="type-tag ${r.type === '线代' ? 'xd' : 'gs'}">${esc(r.type)}</span></td><td>${esc(r.title)}</td><td>${esc(r.chapter)}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    html += `<button class="btn btn-primary" onclick='importQuestions(${JSON.stringify(rows).replace(/'/g, "\\'")})'>确认导入 ${rows.length} 道错题</button>`;
+  }
+
+  if (!rows.length && !errors.length) {
+    html = '<div class="import-summary warn">没有解析到有效数据</div>';
+  }
+
+  document.getElementById('import-preview').innerHTML = html;
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { result.push(current); current = ''; }
+      else { current += ch; }
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function importQuestions(rows) {
+  const qs = getQuestions();
+  let nextId = getNextId(qs);
+  const now = nowStr();
+
+  for (const r of rows) {
+    qs.push({
+      id: nextId++,
+      type: r.type,
+      title: r.title,
+      chapter: r.chapter,
+      created_at: now,
+      last_practiced_at: null,
+      practiced_count: 0,
+      active: true
+    });
+  }
+
+  saveQuestions(qs);
+  document.getElementById('import-preview').innerHTML =
+    `<div class="import-summary ok">成功导入 <strong>${rows.length}</strong> 道错题！</div>`;
+  toast(`已导入 ${rows.length} 道错题`);
 }
 
 // ===================== 初始化 =====================
