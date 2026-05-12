@@ -1259,7 +1259,7 @@ function confirmDelete(id) {
   showModal('确定删除这道错题吗？（可在回收站恢复）', () => {
     const qs = getQuestions();
     const q = qs.find(q => q.id === id);
-    if (q) { q.active = false; saveQuestions(qs); renderList(); renderPractice(); toast('已移入回收站'); }
+    if (q) { q.active = false; saveQuestions(qs); renderList(); searchQuestions(); renderPractice(); toast('已移入回收站'); }
   });
 }
 
@@ -1281,6 +1281,7 @@ function restoreQuestion(id) {
   }));
   saveQuestions(qs);
   renderList();
+  searchQuestions();
   renderPractice();
   toast('已恢复错题，权重已重置');
 }
@@ -1338,12 +1339,14 @@ function esc(s) {
 function searchQuestions() {
   const kw = document.getElementById('input-search').value.trim();
   const area = document.getElementById('search-results');
+  const keywords = kw.split(/\s+/).filter(Boolean);
 
-  if (!kw) { area.innerHTML = ''; return; }
+  if (!keywords.length) { area.innerHTML = ''; return; }
 
-  const qs = getQuestions().filter(q =>
-    q.active && ((q.title || '') + (q.chapter || '') + (q.type || '')).includes(kw)
-  );
+  const qs = getQuestions().filter(q => {
+    const text = `${q.title || ''} ${q.chapter || ''} ${q.type || ''}`;
+    return q.active && keywords.every(k => text.includes(k));
+  });
 
   if (!qs.length) {
     area.innerHTML = '<div class="empty">没有搜索到相关错题</div>';
@@ -1409,8 +1412,7 @@ function getDailyQuestions(gsCount, xdCount, forceRefresh) {
   return selected;
 }
 
-function renderPractice() {
-  // 统计
+function renderPracticeStats() {
   const qs = getQuestions();
   const active = qs.filter(q => q.active);
   const gsActive = active.filter(q => (q.type || '高数') === '高数');
@@ -1427,6 +1429,12 @@ function renderPractice() {
     <div class="stat-box"><div class="num">${stats7.today}</div><div class="label">今日完成</div></div>
     <div class="stat-box"><div class="num">${goodRate}%</div><div class="label">近 7 天会了率</div></div>
   `;
+  return { active, gsActive, xdActive };
+}
+
+function renderPractice() {
+  // 统计
+  const { active, gsActive, xdActive } = renderPracticeStats();
 
   // 如果有进行中的练习，继续显示
   if (practiceSession) {
@@ -1514,6 +1522,7 @@ function renderPracticeSession() {
   if (doneCount >= total) {
     // 完成
     practiceSession = null;
+    renderPracticeStats();
     area.innerHTML = `
       <div style="text-align:center;padding:20px 0">
         <div style="font-size:2.5em;margin-bottom:10px"></div>
