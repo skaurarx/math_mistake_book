@@ -1,7 +1,62 @@
 {
   "version": 1,
-  "exported_at": "2026-05-12 18:00:43",
-  "questions": [],
-  "daily_records": {},
-  "cloud_saved_at": "2026-05-12 18:00:43"
+  "exported_at": "2026-05-12 18:03:36",
+  "questions": [
+    {
+      "id": 1,
+      "type": "高数",
+      "title": "30讲例题1.1",
+      "chapter": "",
+      "created_at": "2026-05-12 17:26:59",
+      "last_practiced_at": "2026-05-12 17:28:40",
+      "practiced_count": 2,
+      "active": false
+    },
+    {
+      "id": 2,
+      "type": "高数",
+      "title": "30讲例题1.3",
+      "chapter": "",
+      "created_at": "2026-05-12 17:27:42",
+      "last_practiced_at": "2026-05-12 17:28:40",
+      "practiced_count": 2,
+      "active": false
+    },
+    {
+      "id": 3,
+      "type": "高数",
+      "title": "30讲例题1.6",
+      "chapter": "",
+      "created_at": "2026-05-12 17:27:53",
+      "last_practiced_at": "2026-05-12 17:28:40",
+      "practiced_count": 2,
+      "active": false
+    },
+    {
+      "id": 4,
+      "type": "高数",
+      "title": "30讲例题1.8",
+      "chapter": "",
+      "created_at": "2026-05-12 17:28:04",
+      "last_practiced_at": "2026-05-12 17:28:40",
+      "practiced_count": 2,
+      "active": false
+    }
+  ],
+  "daily_records": {
+    "2026-05-12": {
+      "generated_at": "2026-05-12 17:28:20",
+      "question_ids": [
+        4,
+        1,
+        2,
+        3
+      ],
+      "config": {
+        "gs": 4,
+        "xd": 0
+      }
+    }
+  },
+  "cloud_saved_at": "2026-05-12 18:03:36"
 }
