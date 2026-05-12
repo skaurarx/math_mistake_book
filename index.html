@@ -471,11 +471,11 @@ nav button.active { background: var(--primary); color: #fff; border-color: var(-
   </header>
 
   <nav>
-    <button class="active" onclick="switchTab('practice')">每日训练</button>
-    <button onclick="switchTab('add')">添加错题</button>
-    <button onclick="switchTab('import')">批量导入</button>
-    <button onclick="switchTab('list')">错题库</button>
-    <button onclick="switchTab('search')">搜索</button>
+    <button class="active" onclick="switchTab('practice', this)">每日训练</button>
+    <button onclick="switchTab('add', this)">添加错题</button>
+    <button onclick="switchTab('import', this)">批量导入</button>
+    <button onclick="switchTab('list', this)">错题库</button>
+    <button onclick="switchTab('search', this)">搜索</button>
   </nav>
 
   <!-- 每日训练 -->
@@ -664,11 +664,11 @@ function weightedSample(pool, count) {
 
 // ===================== 导航 =====================
 
-function switchTab(name) {
+function switchTab(name, button) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
+  button.classList.add('active');
 
   if (name === 'practice') renderPractice();
   if (name === 'list') renderList();
@@ -902,6 +902,9 @@ function startPractice() {
 
 function refreshDaily() {
   showModal('重新生成会替换今日题单，确定吗？', () => {
+    const records = getDailyRecords();
+    delete records[todayStr()];
+    saveDailyRecords(records);
     practiceSession = null;
     toast('请重新设置题目数量');
     renderPractice();
