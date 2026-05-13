@@ -1445,8 +1445,9 @@ function searchQuestions() {
 
 let practiceSession = null; // { questions: [], current: 0, done: Set }
 
-function getDailyQuestions(gsCount, xdCount, forceRefresh) {
-  const qs = getQuestions().filter(q => q.active);
+function getDailyQuestions(gsCount, xdCount, chapterKeyword, forceRefresh) {
+  const keyword = (chapterKeyword || '').trim().toLowerCase();
+  const qs = getQuestions().filter(q => q.active && (!keyword || (q.chapter || '').toLowerCase().includes(keyword)));
   if (!qs.length) return [];
 
   const today = todayStr();
@@ -1455,10 +1456,13 @@ function getDailyQuestions(gsCount, xdCount, forceRefresh) {
 
   if (!forceRefresh && records[today]) {
     const rec = records[today];
-    const ids = Array.isArray(rec) ? rec : (rec.question_ids || []);
-    const valid = ids.filter(id => activeIds.has(id));
-    const matched = qs.filter(q => valid.includes(q.id));
-    if (matched.length) return matched;
+    const savedKeyword = Array.isArray(rec) ? '' : (rec.config && rec.config.chapterKeyword || '');
+    if (savedKeyword === keyword) {
+      const ids = Array.isArray(rec) ? rec : (rec.question_ids || []);
+      const valid = ids.filter(id => activeIds.has(id));
+      const matched = qs.filter(q => valid.includes(q.id));
+      if (matched.length) return matched;
+    }
   }
 
   const gsPool = qs.filter(q => (q.type || '高数') === '高数');
@@ -1471,7 +1475,7 @@ function getDailyQuestions(gsCount, xdCount, forceRefresh) {
   records[today] = {
     generated_at: nowStr(),
     question_ids: selected.map(q => q.id),
-    config: { gs: gsCount, xd: xdCount }
+    config: { gs: gsCount, xd: xdCount, chapterKeyword: keyword }
   };
   saveDailyRecords(records);
   return selected;
@@ -1535,6 +1539,10 @@ function renderPractice() {
       <input type="number" id="count-xd" min="0" max="${xdActive.length}" value="${defaultXd}">
       <span class="avail">可用 ${xdActive.length} 道</span>
     </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>章节筛选</label>
+      <input type="text" id="practice-filter-chapter" placeholder="输入章节关键词，留空则不筛选" value="${esc(lastConfig && lastConfig.chapterKeyword || '')}">
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
       <button class="btn btn-primary" onclick="startPractice()">开始今日训练</button>
       <button class="btn btn-outline" onclick="refreshDaily()">重新随机生成</button>
@@ -1548,7 +1556,7 @@ function startPractice() {
 
   if (!gsInput || !xdInput) {
     // 没有输入框说明已在练习中
-    const qs = getDailyQuestions(0, 0, false);
+    const qs = getDailyQuestions(0, 0, '', false);
     if (!qs.length) { toast('错题库为空'); return; }
     practiceSession = { questions: qs, current: 0, done: new Set() };
     renderPracticeSession();
@@ -1557,11 +1565,12 @@ function startPractice() {
 
   let gsCount = parseInt(gsInput.value) || 0;
   let xdCount = parseInt(xdInput.value) || 0;
+  const chapterKeyword = document.getElementById('practice-filter-chapter').value;
 
   if (gsCount + xdCount === 0) { toast('请至少选择 1 道题'); return; }
 
-  const qs = getDailyQuestions(gsCount, xdCount, false);
-  if (!qs.length) { toast('没有可用的错题'); return; }
+  const qs = getDailyQuestions(gsCount, xdCount, chapterKeyword, false);
+  if (!qs.length) { toast('没有符合章节筛选的错题'); return; }
 
   practiceSession = { questions: qs, current: 0, done: new Set() };
   renderPracticeSession();
