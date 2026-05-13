@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-13 14:10:50",
+  "exported_at": "2026-05-13 14:11:19",
   "questions": [
     {
       "id": 1,
@@ -3434,60 +3434,7 @@
         "gs": 4,
         "xd": 0
       }
-    },
-    "2026-05-13": {
-      "generated_at": "2026-05-13 08:57:27",
-      "question_ids": [
-        180,
-        39,
-        13,
-        75,
-        213
-      ],
-      "config": {
-        "gs": 5,
-        "xd": 0
-      },
-      "results": [
-        {
-          "question_id": 180,
-          "type": "高数",
-          "result": "good",
-          "answered_at": "2026-05-13 09:00:26"
-        },
-        {
-          "question_id": 39,
-          "type": "高数",
-          "result": "hard",
-          "answered_at": "2026-05-13 09:11:44"
-        },
-        {
-          "question_id": 13,
-          "type": "高数",
-          "result": "again",
-          "answered_at": "2026-05-13 09:14:14"
-        },
-        {
-          "question_id": 75,
-          "type": "高数",
-          "result": "again",
-          "answered_at": "2026-05-13 09:23:24"
-        },
-        {
-          "question_id": 213,
-          "type": "高数",
-          "result": "good",
-          "answered_at": "2026-05-13 09:28:56"
-        }
-      ],
-      "summary": {
-        "attempted": 5,
-        "again": 2,
-        "hard": 1,
-        "good": 2
-      },
-      "updated_at": "2026-05-13 09:28:56"
     }
   },
-  "cloud_saved_at": "2026-05-13 14:10:50"
+  "cloud_saved_at": "2026-05-13 14:11:19"
 }
