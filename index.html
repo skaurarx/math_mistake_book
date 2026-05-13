@@ -1445,9 +1445,10 @@ function searchQuestions() {
 
 let practiceSession = null; // { questions: [], current: 0, done: Set }
 
-function getDailyQuestions(gsCount, xdCount, chapterKeyword, forceRefresh) {
-  const keyword = (chapterKeyword || '').trim().toLowerCase();
-  const qs = getQuestions().filter(q => q.active && (!keyword || (q.chapter || '').toLowerCase().includes(keyword)));
+function getDailyQuestions(gsCount, xdCount, gsChapterKeyword, xdChapterKeyword, forceRefresh) {
+  const gsKeyword = (gsChapterKeyword || '').trim().toLowerCase();
+  const xdKeyword = (xdChapterKeyword || '').trim().toLowerCase();
+  const qs = getQuestions().filter(q => q.active);
   if (!qs.length) return [];
 
   const today = todayStr();
@@ -1456,8 +1457,10 @@ function getDailyQuestions(gsCount, xdCount, chapterKeyword, forceRefresh) {
 
   if (!forceRefresh && records[today]) {
     const rec = records[today];
-    const savedKeyword = Array.isArray(rec) ? '' : (rec.config && rec.config.chapterKeyword || '');
-    if (savedKeyword === keyword) {
+    const config = Array.isArray(rec) ? {} : (rec.config || {});
+    const savedGsKeyword = config.gsChapterKeyword || config.chapterKeyword || '';
+    const savedXdKeyword = config.xdChapterKeyword || config.chapterKeyword || '';
+    if (savedGsKeyword === gsKeyword && savedXdKeyword === xdKeyword) {
       const ids = Array.isArray(rec) ? rec : (rec.question_ids || []);
       const valid = ids.filter(id => activeIds.has(id));
       const matched = qs.filter(q => valid.includes(q.id));
@@ -1465,8 +1468,8 @@ function getDailyQuestions(gsCount, xdCount, chapterKeyword, forceRefresh) {
     }
   }
 
-  const gsPool = qs.filter(q => (q.type || '高数') === '高数');
-  const xdPool = qs.filter(q => q.type === '线代');
+  const gsPool = qs.filter(q => (q.type || '高数') === '高数' && (!gsKeyword || (q.chapter || '').toLowerCase().includes(gsKeyword)));
+  const xdPool = qs.filter(q => q.type === '线代' && (!xdKeyword || (q.chapter || '').toLowerCase().includes(xdKeyword)));
 
   const gsSelected = weightedSample(gsPool, gsCount);
   const xdSelected = weightedSample(xdPool, xdCount);
@@ -1475,7 +1478,7 @@ function getDailyQuestions(gsCount, xdCount, chapterKeyword, forceRefresh) {
   records[today] = {
     generated_at: nowStr(),
     question_ids: selected.map(q => q.id),
-    config: { gs: gsCount, xd: xdCount, chapterKeyword: keyword }
+    config: { gs: gsCount, xd: xdCount, gsChapterKeyword: gsKeyword, xdChapterKeyword: xdKeyword }
   };
   saveDailyRecords(records);
   return selected;
@@ -1540,8 +1543,12 @@ function renderPractice() {
       <span class="avail">可用 ${xdActive.length} 道</span>
     </div>
     <div class="form-group" style="margin-top:12px">
-      <label>章节筛选</label>
-      <input type="text" id="practice-filter-chapter" placeholder="输入章节关键词，留空则不筛选" value="${esc(lastConfig && lastConfig.chapterKeyword || '')}">
+      <label>高数章节筛选</label>
+      <input type="text" id="practice-filter-gs-chapter" placeholder="输入高数章节关键词，留空则不筛选" value="${esc(lastConfig && (lastConfig.gsChapterKeyword || lastConfig.chapterKeyword) || '')}">
+    </div>
+    <div class="form-group">
+      <label>线代章节筛选</label>
+      <input type="text" id="practice-filter-xd-chapter" placeholder="输入线代章节关键词，留空则不筛选" value="${esc(lastConfig && (lastConfig.xdChapterKeyword || lastConfig.chapterKeyword) || '')}">
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
       <button class="btn btn-primary" onclick="startPractice()">开始今日训练</button>
@@ -1556,7 +1563,7 @@ function startPractice() {
 
   if (!gsInput || !xdInput) {
     // 没有输入框说明已在练习中
-    const qs = getDailyQuestions(0, 0, '', false);
+    const qs = getDailyQuestions(0, 0, '', '', false);
     if (!qs.length) { toast('错题库为空'); return; }
     practiceSession = { questions: qs, current: 0, done: new Set() };
     renderPracticeSession();
@@ -1565,11 +1572,12 @@ function startPractice() {
 
   let gsCount = parseInt(gsInput.value) || 0;
   let xdCount = parseInt(xdInput.value) || 0;
-  const chapterKeyword = document.getElementById('practice-filter-chapter').value;
+  const gsChapterKeyword = document.getElementById('practice-filter-gs-chapter').value;
+  const xdChapterKeyword = document.getElementById('practice-filter-xd-chapter').value;
 
   if (gsCount + xdCount === 0) { toast('请至少选择 1 道题'); return; }
 
-  const qs = getDailyQuestions(gsCount, xdCount, chapterKeyword, false);
+  const qs = getDailyQuestions(gsCount, xdCount, gsChapterKeyword, xdChapterKeyword, false);
   if (!qs.length) { toast('没有符合章节筛选的错题'); return; }
 
   practiceSession = { questions: qs, current: 0, done: new Set() };
