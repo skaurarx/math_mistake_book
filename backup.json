@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-14 08:35:28",
+  "exported_at": "2026-05-14 08:42:52",
   "questions": [
     {
       "id": 1,
@@ -1442,15 +1442,15 @@
       "title": "张宇高数30讲例题14.6",
       "chapter": "二重积分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-14 08:42:48",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.3,
+      "interval_days": 1,
+      "next_review_at": "2026-05-15",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "again"
     },
     {
       "id": 92,
@@ -3713,16 +3713,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-14 08:35:24"
+        },
+        {
+          "question_id": 91,
+          "type": "高数",
+          "result": "again",
+          "answered_at": "2026-05-14 08:42:48"
         }
       ],
       "summary": {
-        "attempted": 4,
-        "again": 1,
+        "attempted": 5,
+        "again": 2,
         "hard": 1,
         "good": 2
       },
-      "updated_at": "2026-05-14 08:35:24"
+      "updated_at": "2026-05-14 08:42:48"
     }
   },
-  "cloud_saved_at": "2026-05-14 08:35:28"
+  "cloud_saved_at": "2026-05-14 08:42:52"
 }
