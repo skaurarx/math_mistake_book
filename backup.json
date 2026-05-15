@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 09:31:31",
+  "exported_at": "2026-05-15 09:43:23",
   "questions": [
     {
       "id": 1,
@@ -578,15 +578,15 @@
       "title": "张宇高数30讲例题5.10",
       "chapter": "一元函数微分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-15 09:32:23",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.3,
+      "interval_days": 1,
+      "next_review_at": "2026-05-16",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "again"
     },
     {
       "id": 38,
@@ -2786,15 +2786,15 @@
       "title": "张宇高数1000a第九章29",
       "chapter": "一元函数积分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-15 09:43:19",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
-      "correct_count": 0,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-18",
+      "correct_count": 1,
       "wrong_count": 0,
-      "last_result": null
+      "last_result": "good"
     },
     {
       "id": 176,
@@ -3821,16 +3821,28 @@
           "type": "高数",
           "result": "hard",
           "answered_at": "2026-05-15 09:31:27"
+        },
+        {
+          "question_id": 37,
+          "type": "高数",
+          "result": "again",
+          "answered_at": "2026-05-15 09:32:23"
+        },
+        {
+          "question_id": 175,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-15 09:43:19"
         }
       ],
       "summary": {
-        "attempted": 7,
-        "again": 1,
+        "attempted": 9,
+        "again": 2,
         "hard": 2,
-        "good": 4
+        "good": 5
       },
-      "updated_at": "2026-05-15 09:31:27"
+      "updated_at": "2026-05-15 09:43:19"
     }
   },
-  "cloud_saved_at": "2026-05-15 09:31:31"
+  "cloud_saved_at": "2026-05-15 09:43:23"
 }
