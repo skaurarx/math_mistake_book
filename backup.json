@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 09:28:07",
+  "exported_at": "2026-05-15 09:31:31",
   "questions": [
     {
       "id": 1,
@@ -146,15 +146,15 @@
       "title": "张宇高数30讲例题1.28",
       "chapter": "极限",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-15 09:31:27",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.45,
+      "interval_days": 2,
+      "next_review_at": "2026-05-17",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "hard"
     },
     {
       "id": 11,
@@ -3815,16 +3815,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-15 09:28:03"
+        },
+        {
+          "question_id": 10,
+          "type": "高数",
+          "result": "hard",
+          "answered_at": "2026-05-15 09:31:27"
         }
       ],
       "summary": {
-        "attempted": 6,
+        "attempted": 7,
         "again": 1,
-        "hard": 1,
+        "hard": 2,
         "good": 4
       },
-      "updated_at": "2026-05-15 09:28:03"
+      "updated_at": "2026-05-15 09:31:27"
     }
   },
-  "cloud_saved_at": "2026-05-15 09:28:07"
+  "cloud_saved_at": "2026-05-15 09:31:31"
 }
