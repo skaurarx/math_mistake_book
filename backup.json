@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 08:59:00",
+  "exported_at": "2026-05-15 09:18:44",
   "questions": [
     {
       "id": 1,
@@ -2962,15 +2962,15 @@
       "title": "张宇高数1000a第十三章13",
       "chapter": "多元函数微分学",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-15 09:18:39",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
-      "correct_count": 0,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-18",
+      "correct_count": 1,
       "wrong_count": 0,
-      "last_result": null
+      "last_result": "good"
     },
     {
       "id": 187,
@@ -3797,16 +3797,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-15 08:58:53"
+        },
+        {
+          "question_id": 186,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-15 09:18:39"
         }
       ],
       "summary": {
-        "attempted": 3,
+        "attempted": 4,
         "again": 1,
         "hard": 0,
-        "good": 2
+        "good": 3
       },
-      "updated_at": "2026-05-15 08:58:53"
+      "updated_at": "2026-05-15 09:18:39"
     }
   },
-  "cloud_saved_at": "2026-05-15 08:59:00"
+  "cloud_saved_at": "2026-05-15 09:18:44"
 }
