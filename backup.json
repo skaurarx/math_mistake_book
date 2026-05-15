@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 09:18:44",
+  "exported_at": "2026-05-15 09:25:24",
   "questions": [
     {
       "id": 1,
@@ -1762,15 +1762,15 @@
       "title": "张宇高数30讲例题15.18",
       "chapter": "微分方程",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-15 09:25:20",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.45,
+      "interval_days": 2,
+      "next_review_at": "2026-05-17",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "hard"
     },
     {
       "id": 112,
@@ -3803,16 +3803,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-15 09:18:39"
+        },
+        {
+          "question_id": 111,
+          "type": "高数",
+          "result": "hard",
+          "answered_at": "2026-05-15 09:25:20"
         }
       ],
       "summary": {
-        "attempted": 4,
+        "attempted": 5,
         "again": 1,
-        "hard": 0,
+        "hard": 1,
         "good": 3
       },
-      "updated_at": "2026-05-15 09:18:39"
+      "updated_at": "2026-05-15 09:25:20"
     }
   },
-  "cloud_saved_at": "2026-05-15 09:18:44"
+  "cloud_saved_at": "2026-05-15 09:25:24"
 }
