@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 08:46:53",
+  "exported_at": "2026-05-15 08:48:50",
   "questions": [
     {
       "id": 1,
@@ -194,15 +194,15 @@
       "title": "张宇高数30讲例题1.35",
       "chapter": "极限",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": "2026-05-13 09:14:14",
-      "practiced_count": 1,
+      "last_practiced_at": "2026-05-15 08:48:46",
+      "practiced_count": 2,
       "active": true,
-      "ease": 2.3,
-      "interval_days": 1,
-      "next_review_at": "2026-05-14",
-      "correct_count": 0,
+      "ease": 2.3499999999999996,
+      "interval_days": 3,
+      "next_review_at": "2026-05-18",
+      "correct_count": 1,
       "wrong_count": 1,
-      "last_result": "again"
+      "last_result": "good"
     },
     {
       "id": 14,
@@ -3778,8 +3778,23 @@
         "xd": 0,
         "gsChapterKeyword": "",
         "xdChapterKeyword": ""
-      }
+      },
+      "results": [
+        {
+          "question_id": 13,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-15 08:48:46"
+        }
+      ],
+      "summary": {
+        "attempted": 1,
+        "again": 0,
+        "hard": 0,
+        "good": 1
+      },
+      "updated_at": "2026-05-15 08:48:46"
     }
   },
-  "cloud_saved_at": "2026-05-15 08:46:53"
+  "cloud_saved_at": "2026-05-15 08:48:50"
 }
