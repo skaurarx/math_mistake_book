@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-15 09:43:23",
+  "exported_at": "2026-05-15 09:51:07",
   "questions": [
     {
       "id": 1,
@@ -72,9 +72,15 @@
       "title": "30讲例题1.1",
       "chapter": "",
       "created_at": "2026-05-12 18:08:44",
-      "last_practiced_at": null,
-      "practiced_count": 0,
-      "active": true
+      "last_practiced_at": "2026-05-15 09:44:12",
+      "practiced_count": 1,
+      "active": true,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-18",
+      "correct_count": 1,
+      "wrong_count": 0,
+      "last_result": "good"
     },
     {
       "id": 6,
@@ -3833,16 +3839,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-15 09:43:19"
+        },
+        {
+          "question_id": 5,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-15 09:44:12"
         }
       ],
       "summary": {
-        "attempted": 9,
+        "attempted": 10,
         "again": 2,
         "hard": 2,
-        "good": 5
+        "good": 6
       },
-      "updated_at": "2026-05-15 09:43:19"
+      "updated_at": "2026-05-15 09:44:12"
     }
   },
-  "cloud_saved_at": "2026-05-15 09:43:23"
+  "cloud_saved_at": "2026-05-15 09:51:07"
 }
