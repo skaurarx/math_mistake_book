@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-16 15:37:37",
+  "exported_at": "2026-05-16 15:45:54",
   "questions": [
     {
       "id": 1,
@@ -3224,15 +3224,15 @@
       "title": "张宇高数1000a第十四章18",
       "chapter": "二重积分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-16 15:45:49",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
-      "correct_count": 0,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-19",
+      "correct_count": 1,
       "wrong_count": 0,
-      "last_result": null
+      "last_result": "good"
     },
     {
       "id": 203,
@@ -3905,16 +3905,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-16 15:37:32"
+        },
+        {
+          "question_id": 202,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-16 15:45:49"
         }
       ],
       "summary": {
-        "attempted": 5,
+        "attempted": 6,
         "again": 0,
         "hard": 1,
-        "good": 4
+        "good": 5
       },
-      "updated_at": "2026-05-16 15:37:32"
+      "updated_at": "2026-05-16 15:45:49"
     }
   },
-  "cloud_saved_at": "2026-05-16 15:37:37"
+  "cloud_saved_at": "2026-05-16 15:45:54"
 }
