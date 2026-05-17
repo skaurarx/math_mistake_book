@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-17 09:51:14",
+  "exported_at": "2026-05-17 09:53:22",
   "questions": [
     {
       "id": 1,
@@ -232,15 +232,15 @@
       "title": "张宇高数30讲课后题1.2",
       "chapter": "函数",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-17 09:53:18",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
-      "correct_count": 0,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-20",
+      "correct_count": 1,
       "wrong_count": 0,
-      "last_result": null
+      "last_result": "good"
     },
     {
       "id": 16,
@@ -4007,16 +4007,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-17 09:51:09"
+        },
+        {
+          "question_id": 15,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-17 09:53:18"
         }
       ],
       "summary": {
-        "attempted": 7,
+        "attempted": 8,
         "again": 1,
         "hard": 0,
-        "good": 6
+        "good": 7
       },
-      "updated_at": "2026-05-17 09:51:09"
+      "updated_at": "2026-05-17 09:53:18"
     }
   },
-  "cloud_saved_at": "2026-05-17 09:51:14"
+  "cloud_saved_at": "2026-05-17 09:53:22"
 }
