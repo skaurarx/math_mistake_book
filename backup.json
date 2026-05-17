@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-17 09:53:22",
+  "exported_at": "2026-05-17 09:59:36",
   "questions": [
     {
       "id": 1,
@@ -2744,15 +2744,15 @@
       "title": "张宇高数1000a第九章24",
       "chapter": "一元函数积分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-17 09:59:31",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.3,
+      "interval_days": 1,
+      "next_review_at": "2026-05-18",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "again"
     },
     {
       "id": 173,
@@ -4013,16 +4013,22 @@
           "type": "高数",
           "result": "good",
           "answered_at": "2026-05-17 09:53:18"
+        },
+        {
+          "question_id": 172,
+          "type": "高数",
+          "result": "again",
+          "answered_at": "2026-05-17 09:59:31"
         }
       ],
       "summary": {
-        "attempted": 8,
-        "again": 1,
+        "attempted": 9,
+        "again": 2,
         "hard": 0,
         "good": 7
       },
-      "updated_at": "2026-05-17 09:53:18"
+      "updated_at": "2026-05-17 09:59:31"
     }
   },
-  "cloud_saved_at": "2026-05-17 09:53:22"
+  "cloud_saved_at": "2026-05-17 09:59:36"
 }
