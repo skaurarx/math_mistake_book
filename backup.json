@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-17 09:59:36",
+  "exported_at": "2026-05-17 10:06:14",
   "questions": [
     {
       "id": 1,
@@ -1288,15 +1288,15 @@
       "title": "张宇高数30讲例题13.16",
       "chapter": "多元函数微分学",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-17 10:06:09",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
+      "ease": 2.3,
+      "interval_days": 1,
+      "next_review_at": "2026-05-18",
       "correct_count": 0,
-      "wrong_count": 0,
-      "last_result": null
+      "wrong_count": 1,
+      "last_result": "again"
     },
     {
       "id": 82,
@@ -4019,16 +4019,22 @@
           "type": "高数",
           "result": "again",
           "answered_at": "2026-05-17 09:59:31"
+        },
+        {
+          "question_id": 81,
+          "type": "高数",
+          "result": "again",
+          "answered_at": "2026-05-17 10:06:09"
         }
       ],
       "summary": {
-        "attempted": 9,
-        "again": 2,
+        "attempted": 10,
+        "again": 3,
         "hard": 0,
         "good": 7
       },
-      "updated_at": "2026-05-17 09:59:31"
+      "updated_at": "2026-05-17 10:06:09"
     }
   },
-  "cloud_saved_at": "2026-05-17 09:59:36"
+  "cloud_saved_at": "2026-05-17 10:06:14"
 }
