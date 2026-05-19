@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-19 09:33:47",
+  "exported_at": "2026-05-19 09:37:10",
   "questions": [
     {
       "id": 1,
@@ -2200,15 +2200,15 @@
       "title": "张宇高数1000a第五章5",
       "chapter": "一元函数微分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": null,
-      "practiced_count": 0,
+      "last_practiced_at": "2026-05-19 09:37:06",
+      "practiced_count": 1,
       "active": true,
-      "ease": 2.5,
-      "interval_days": 0,
-      "next_review_at": null,
-      "correct_count": 0,
+      "ease": 2.55,
+      "interval_days": 3,
+      "next_review_at": "2026-05-22",
+      "correct_count": 1,
       "wrong_count": 0,
-      "last_result": null
+      "last_result": "good"
     },
     {
       "id": 139,
@@ -4187,16 +4187,22 @@
           "type": "高数",
           "result": "again",
           "answered_at": "2026-05-19 09:33:43"
+        },
+        {
+          "question_id": 138,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-19 09:37:06"
         }
       ],
       "summary": {
-        "attempted": 7,
+        "attempted": 8,
         "again": 2,
         "hard": 1,
-        "good": 4
+        "good": 5
       },
-      "updated_at": "2026-05-19 09:33:43"
+      "updated_at": "2026-05-19 09:37:06"
     }
   },
-  "cloud_saved_at": "2026-05-19 09:33:47"
+  "cloud_saved_at": "2026-05-19 09:37:10"
 }
