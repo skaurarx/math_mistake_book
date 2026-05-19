@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-05-19 09:21:18",
+  "exported_at": "2026-05-19 09:24:44",
   "questions": [
     {
       "id": 1,
@@ -584,15 +584,15 @@
       "title": "张宇高数30讲例题5.10",
       "chapter": "一元函数微分",
       "created_at": "2026-05-12 22:33:49",
-      "last_practiced_at": "2026-05-15 09:32:23",
-      "practiced_count": 1,
+      "last_practiced_at": "2026-05-19 09:24:39",
+      "practiced_count": 2,
       "active": true,
-      "ease": 2.3,
-      "interval_days": 1,
-      "next_review_at": "2026-05-16",
-      "correct_count": 0,
+      "ease": 2.3499999999999996,
+      "interval_days": 3,
+      "next_review_at": "2026-05-22",
+      "correct_count": 1,
       "wrong_count": 1,
-      "last_result": "again"
+      "last_result": "good"
     },
     {
       "id": 38,
@@ -4169,16 +4169,22 @@
           "type": "高数",
           "result": "again",
           "answered_at": "2026-05-19 09:21:14"
+        },
+        {
+          "question_id": 37,
+          "type": "高数",
+          "result": "good",
+          "answered_at": "2026-05-19 09:24:39"
         }
       ],
       "summary": {
-        "attempted": 4,
+        "attempted": 5,
         "again": 1,
         "hard": 1,
-        "good": 2
+        "good": 3
       },
-      "updated_at": "2026-05-19 09:21:14"
+      "updated_at": "2026-05-19 09:24:39"
     }
   },
-  "cloud_saved_at": "2026-05-19 09:21:18"
+  "cloud_saved_at": "2026-05-19 09:24:44"
 }
